@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  emqx:
+    image: emqx/emqx:latest
+    environment:
+    - "EMQX_NAME=emqx"
+    ports:
+    - "1883:1883"
+    - "18083:18083"
+
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    ports:
+    - "3306:3306"
