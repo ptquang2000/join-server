@@ -7,6 +7,9 @@ SELECT * FROM `mysql`.`general_log` LIMIT 1000;
 SET GLOBAL general_log= 'OFF';
 TRUNCATE table mysql.general_log;
 
+-- gateways
+DROP TABLE mqtt_gateways 
+
 -- EMQX authentication
 CREATE TABLE `mqtt_user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
