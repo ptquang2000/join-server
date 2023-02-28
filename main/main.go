@@ -7,6 +7,4 @@ import (
 func main() {
 	models.DBConnect()
 	models.DBMigrate()
-
-	models.GatewayCreate()
 }

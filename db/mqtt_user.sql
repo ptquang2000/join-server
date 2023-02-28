@@ -10,7 +10,8 @@ SET GLOBAL general_log= 'OFF';
 TRUNCATE table mysql.general_log;
 
 -- gateways
-DROP TABLE gateways 
+DROP TABLE gateways;
+DROP TABLE end_devices;
 
 -- EMQX authentication
 CREATE TABLE `mqtt_user` (

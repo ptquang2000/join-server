@@ -41,6 +41,7 @@ func DBConnect() {
 
 func DBMigrate() {
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&Gateways{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&EndDevices{})
 }
 
 type DBModels interface {
@@ -49,4 +50,8 @@ type DBModels interface {
 
 func (gateway Gateways) Create() {
 	db.Create(&gateway)
+}
+
+func (device EndDevices) Create() {
+	db.Create(&device)
 }

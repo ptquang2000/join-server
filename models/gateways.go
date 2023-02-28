@@ -7,15 +7,15 @@ import (
 )
 
 type Gateways struct {
-	Id uint32 `gorm:"NOT NULL AUTO_INCREMENT"`
-	Username string `gorm:"type:varchar(100) DEFAULT NULL;uniqueIndex:unique_username"`
-	Password_harsh string `gorm:"type:varchar(100) DEFAULT NULL"`
-	Salt string `gorm:"type:varchar(35) DEFAULT NULL"`
-	Is_superuser bool `gorm:"DEFAULT 0"`
-	Created time.Time `gorm:"type:datetime DEFAULT NULL"`
+	Id uint32 `gorm:"not null;autoIncrement"`
+	Username string `gorm:"type:varchar(100);default:null;uniqueIndex:unique_username"`
+	Password_harsh string `gorm:"type:varchar(100);default:null"`
+	Salt string `gorm:"type:varchar(35);default:null"`
+	Is_superuser bool `gorm:"default:0"`
+	Created time.Time `gorm:"type:datetime;default:null"`
 }
 
-func GatewayCreate() {
+func CreateGateway() {
 	username := "station1"
 	password := "public"
 	salt := "slat_foo123"
