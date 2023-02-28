@@ -1,3 +1,5 @@
+USE mqtt_user
+
 -- show query logs
 SET GLOBAL log_output = 'TABLE';
 SET GLOBAL general_log = 'ON';
@@ -8,7 +10,7 @@ SET GLOBAL general_log= 'OFF';
 TRUNCATE table mysql.general_log;
 
 -- gateways
-DROP TABLE mqtt_gateways 
+DROP TABLE gateways 
 
 -- EMQX authentication
 CREATE TABLE `mqtt_user` (
