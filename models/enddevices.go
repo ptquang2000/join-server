@@ -7,11 +7,11 @@ import (
 
 type EndDevices struct {
 	Id uint32 `gorm:"not null;autoIncrement"`
-	Netid uint32 `gorm:"default:0"`
+	NetId uint32 `gorm:"default:0"`
 	JoinEui uint64 `gorm:"default:0"`
 	DevEui uint64 `gorm:"uniqueIndex:unique_deveui"`
 	Appkey []byte `gorm:"type:blob"`
-	Devaddr uint32 `gorm:"default:null;uniqueIndex:unique_devaddr"`
+	DevAddr uint32 `gorm:"default:null;uniqueIndex:unique_devaddr"`
 	DevNonce uint16 `gorm:"default:0"`
 	JoinNonce uint16 `gorm:"default:0"`
 }
@@ -27,6 +27,11 @@ func GenerateAppkey() (appkey []byte) {
 	return
 }
 
+func ReadEndevices() (endevices []EndDevices){
+	db.Find(&endevices)
+	return
+}
+
 func CreateEndDevice() {
 	netid := uint32(0)
 	join_eui := uint64(0)
@@ -34,10 +39,14 @@ func CreateEndDevice() {
 	appkey := GenerateAppkey()
 	
 	enddevice := &EndDevices {
-		Netid: netid,
+		NetId: netid,
 		JoinEui: join_eui,
 		DevEui: dev_eui,
 		Appkey: appkey,
 	}
 	enddevice.Create()
+}
+
+func (device EndDevices) Create() {
+	db.Create(&device)
 }

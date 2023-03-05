@@ -15,6 +15,11 @@ type Gateways struct {
 	Created time.Time `gorm:"type:datetime;default:null"`
 }
 
+func ReadGateways() (gateways []Gateways) {
+	db.Find(&gateways)
+	return
+}
+
 func CreateGateway() {
 	username := "station1"
 	password := "public"
@@ -33,4 +38,8 @@ func CreateGateway() {
 		Created: time.Now(),
 	}
 	gateway.Create()
+}
+
+func (gateway Gateways) Create() {
+	db.Create(&gateway)
 }

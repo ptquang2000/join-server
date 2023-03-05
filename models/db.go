@@ -22,7 +22,7 @@ var newLogger = logger.New(
   )
 
 var username, password string = "root", "example"
-var dsn, dbname string = "localhost", "mqtt_user"
+var dsn, dbname string = "localhost", "joinserver"
 var port uint = 3306
 
 var db *gorm.DB
@@ -35,23 +35,22 @@ func DBConnect() {
 	})
 
 	if err != nil {
-		panic("Cannot connect to DB")
-	}	
+		panic(err)
+	}
+}
+
+func DBClose() {
+	instance, _ := db.DB()
+    _ = instance.Close()
 }
 
 func DBMigrate() {
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&Gateways{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&EndDevices{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinRequests{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinAccepts{})
 }
 
 type DBModels interface {
 	Create()
-}
-
-func (gateway Gateways) Create() {
-	db.Create(&gateway)
-}
-
-func (device EndDevices) Create() {
-	db.Create(&device)
 }
