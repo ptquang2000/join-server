@@ -7,7 +7,7 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
     const [currentOptions, setCurrentOptions] = React.useState({})
 
     const optionList = options.map(option => 
-            <ReactBootstrap.ListGroup.Item className="input-group-prepend">
+            <ReactBootstrap.ListGroup.Item className="input-group-prepend border-0">
                 <input 
                     type="checkbox" 
                     id={option} 
@@ -70,7 +70,29 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
                         ...props.style,
                         }}
                     >
-                    <ReactBootstrap.ListGroup>{optionList}</ReactBootstrap.ListGroup>
+                    <ReactBootstrap.ListGroup className="border border-light-subtle">
+                        {optionList}
+                        <ReactBootstrap.ListGroup.Item className="border-0">
+                            <ReactBootstrap.Button  
+                                variant="link" 
+                                className="text-decoration-none m-0 pe-2 ps-0 py-0"
+                                onClick={(e) => {
+                                    setCurrentOptions(options.reduce((obj, key) => ({ ...obj, [key]: false}), {}))
+                                }}
+                            >
+                                Hide all
+                            </ReactBootstrap.Button>
+                            <ReactBootstrap.Button 
+                                variant="link" 
+                                className="text-decoration-none m-0 pe-0 ps-2 py-0"
+                                onClick={(e) => {
+                                    setCurrentOptions(options.reduce((obj, key) => ({ ...obj, [key]: true}), {}))
+                                }}
+                            >
+                                Show all
+                            </ReactBootstrap.Button>
+                        </ReactBootstrap.ListGroup.Item>
+                    </ReactBootstrap.ListGroup>
                     </div>
                     )}
                 </ReactBootstrap.Overlay>
