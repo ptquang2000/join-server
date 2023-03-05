@@ -1,7 +1,7 @@
 const DataType = {
-    Gateway : 0,
-    EndDevices: 1,
-    Frames: 2,
+    Gateway : 'Gateway',
+    EndDevices: 'Endevices',
+    Frames: 'Frames',
 }
 
 const Navbars = ( { onTabChanged } ) => {
@@ -41,7 +41,7 @@ const Navbars = ( { onTabChanged } ) => {
       }, [])
 
     return (
-        <nav className="navbar align-items-start text-nowrap blue-100">  
+        <nav className="navbar align-items-start text-nowrap ps-3" style={{backgroundColor:"var(--bs-info-bg-subtle)"}}>  
             <ul class="nav flex-column">
                 { tabList }
             </ul>

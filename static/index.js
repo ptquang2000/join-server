@@ -1,4 +1,4 @@
-const ContainerHeader = ({ options, OnInputChanged }) => {
+const ContainerHeader = ({ type, options, OnInputChanged }) => {
     const onSearch = (e) => {
         e.preventDefault()
     }
@@ -22,20 +22,22 @@ const ContainerHeader = ({ options, OnInputChanged }) => {
             </ReactBootstrap.ListGroup.Item>
     )
     React.useEffect(() => {
-        if (options.length != 0)
-        {
-            setCurrentOptions(options.reduce((obj, key) => ({ ...obj, [key]: true}), {}))
-        }
+        setCurrentOptions(options.reduce((obj, key) => ({ ...obj, [key]: true}), {}))
     }, [options])
 
     React.useEffect(() => {
         OnInputChanged(currentOptions)
     }, [currentOptions])
 
+    const description = 
+        type == DataType.Gateway ? "Table of gateways" :
+        type == DataType.EndDevices ? "Table of End Devices" :
+        type == DataType.Frames ? "Table of Frame" : null
+
     return (
         <div className="text-start">
-            <h1>Container Name</h1>
-            <p>Container Description</p>
+            <h1>{type}</h1>
+            <p>{description}</p>
 
             <div className="d-flex justify-content-end mt-5">
                 <form className="d-flex m-0" role="search" onSubmit={onSearch}>
@@ -86,8 +88,9 @@ const Containers = ({ path, type }) => {
         type == DataType.EndDevices ? <EndDeviceTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
         type == DataType.Frames ? <FrameTable path={path} setOptions={setOptions} showOptions={showOptions}/> : null
     return (
-        <main className="container-fluid text-center">
+        <main className="container-fluid text-center" style={{backgroundColor:"var(--bs-info-border-subtle)"}}>
             <ContainerHeader 
+                type={type}
                 options={options} 
                 OnInputChanged={setShowOptions}
             />
@@ -111,8 +114,8 @@ class App extends React.Component {
 
     render() {
         return (
-            <div className="container-lg position-absolute top-50 start-50 translate-middle">
-                <div className="container-lg d-flex flex-row">
+            <div className="container-lg position-absolute top-50 start-50 translate-middle border border-light-subtle rounded p-0">
+                <div className="container-lg d-flex flex-row p-0">
                     <Navbars onTabChanged={this.onTabChanged}/>
                     <Containers path={this.state.path} type={this.state.dataType}/>
                 </div>
