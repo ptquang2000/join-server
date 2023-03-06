@@ -58,3 +58,73 @@ const ChatLeftText = () => {
         </svg>
     )
 }
+
+const PlusCircleFill = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+        </svg>
+    )
+}
+
+const ChevronLeft = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+        </svg>
+    )
+}
+
+const ArrowCounterClockwise = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
+            <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
+        </svg>
+    )
+}
+
+const base64ToHex = (str) => {
+    for (var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = []; i < bin.length; ++i) {
+        let tmp = bin.charCodeAt(i).toString(16)
+        if (tmp.length === 1) tmp = "0" + tmp
+        hex[hex.length] = tmp
+    }
+    return hex.join(" ")
+}
+
+const base64ToHexArray = (str) => {
+    for (var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = []; i < bin.length; ++i) {
+        let tmp = bin.charCodeAt(i).toString(16)
+        if (tmp.length === 1) tmp = "0" + tmp
+        hex[hex.length] = tmp[0]
+        hex[hex.length] = tmp[1]
+    }
+    return hex
+}
+
+const numberToHex = (number) => {
+    for (var i = 0, hex = []; i < size; i++) {
+        let tmp = (number & BigInt(0xFF)).toString(16).toUpperCase()
+        tmp = tmp.length == 1 ? "0" + tmp : tmp
+        hex[hex.length] = tmp 
+        number = number >> BigInt(8)
+    }
+    return hex.join(" ")
+}
+
+const generateHtmlEntity = (num, code, ref = []) => {
+    for (var i = 0, str = []; i < num; i++)
+    {
+        let isEven = num % 2 == 0 ? (i % 2 == 0) : (i % 2 != 0)
+        if (isEven)
+        {
+            str[str.length] = i < ref.length ? ref[i].toUpperCase() : String.fromCharCode(code)
+        }
+        else
+        {
+            str[str.length] = (i < ref.length ? ref[i].toUpperCase() : String.fromCharCode(code)) + (i == num - 1 ? '' : String.fromCharCode(160))
+        }
+    }
+    return str.join('')
+}

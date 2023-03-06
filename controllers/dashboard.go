@@ -10,13 +10,21 @@ import (
 	"github.com/ptquang2000/join-server/models"
 )
 
+var router *gin.Engine
+
 func formatAsDate(t time.Time) string {
 	year, month, day := t.Date()
 	return fmt.Sprintf("%d%02d/%02d", year, month, day)
 }
 
+func SetupDashboardAPI() {
+	router.GET("/appkey", func(c *gin.Context) {
+		c.JSONP(http.StatusOK, models.GenerateAppkey())
+	})
+}
+
 func StartServer() {
-	router := gin.Default()
+	router = gin.Default()
 	router.Delims("{[{", "}]}")
 	router.SetFuncMap(template.FuncMap{
 		"formatAsDate": formatAsDate,
@@ -42,6 +50,8 @@ func StartServer() {
 			"now": time.Date(2017, 0o7, 0o1, 0, 0, 0, 0, time.UTC),
 		})
 	})
+
+	SetupDashboardAPI()
 
 	router.Run(":8080")
 }

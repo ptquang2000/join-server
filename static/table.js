@@ -17,24 +17,6 @@ class FrameTable extends React.Component {
 }
 
 const ByteBlocks = ({ size, value }) => {
-    const base64ToHex = (str) => {
-        for (var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = []; i < bin.length; ++i) {
-            let tmp = bin.charCodeAt(i).toString(16)
-            if (tmp.length === 1) tmp = "0" + tmp
-            hex[hex.length] = tmp
-        }
-        return hex.join(" ")
-    }
-    const numberToHex = (number) => {
-        for (var i = 0, hex = []; i < size; i++) {
-            let tmp = (number & BigInt(0xFF)).toString(16).toUpperCase()
-            tmp = tmp.length == 1 ? "0" + tmp : tmp
-            hex[hex.length] = tmp 
-            number = number >> BigInt(8)
-        }
-        return hex.join(" ")
-    }
-
     let hex = 
         typeof(value) === 'string' ? base64ToHex(value) :
         typeof(value) === 'number' ? numberToHex(BigInt(value)) : null;

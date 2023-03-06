@@ -41,7 +41,7 @@ const Navbars = ( { onTabChanged } ) => {
       }, [])
 
     return (
-        <nav className="navbar align-items-start text-nowrap ps-3" style={{backgroundColor:"var(--bs-info-bg-subtle)"}}>  
+        <nav className="navbar align-items-start text-nowrap ps-3 pt-3" style={{backgroundColor:"var(--bs-info-bg-subtle)"}}>  
             <ul class="nav flex-column">
                 { tabList }
             </ul>

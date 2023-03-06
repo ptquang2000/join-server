@@ -11,7 +11,7 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
                 <input 
                     type="checkbox" 
                     id={option} 
-                    defaultChecked={true}
+                    checked={currentOptions[option]}
                     onChange={(e) => {
                         const newOptions = {...currentOptions}
                         newOptions[option] = e.target.checked
@@ -30,16 +30,16 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
     }, [currentOptions])
 
     const description = 
-        type == DataType.Gateway ? "Table of gateways" :
+        type == DataType.Gateway ? "Table of Gateways" :
         type == DataType.EndDevices ? "Table of End Devices" :
-        type == DataType.Frames ? "Table of Frame" : null
+        type == DataType.Frames ? "Table of Frames" : null
 
     return (
         <div className="text-start">
             <h1>{type}</h1>
             <p>{description}</p>
 
-            <div className="d-flex justify-content-end mt-5">
+            <div className="d-flex justify-content-end">
                 <form className="d-flex m-0" role="search" onSubmit={onSearch}>
                     <input className="form-control align-self-center" type="search" placeholder="Search" aria-label="Search"/>
                 </form>
@@ -102,21 +102,61 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
 }
 
 const Containers = ({ path, type }) => {
+    const [page, setPage] = React.useState(false)
+
     const [options, setOptions] = React.useState([])
     const [showOptions, setShowOptions] = React.useState({})
 
     const table = 
         type == DataType.Gateway ? <GatewayTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
         type == DataType.EndDevices ? <EndDeviceTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
-        type == DataType.Frames ? <FrameTable path={path} setOptions={setOptions} showOptions={showOptions}/> : null
+        type == DataType.Frames ? <FrameTable path={path} setOptions={setOptions} showOptions={showOptions}/> : 
+        null
+
+    const form = 
+        type == DataType.Gateway ? <GatewayForm/> :
+        type == DataType.EndDevices ? <EndDeviceForm/> :
+        null
+
     return (
-        <main className="container-fluid text-center" style={{backgroundColor:"var(--bs-info-border-subtle)"}}>
-            <ContainerHeader 
-                type={type}
-                options={options} 
-                OnInputChanged={setShowOptions}
-            />
-            {table}
+        <main className="container-fluid p-3" style={{backgroundColor:"var(--bs-info-border-subtle)"}}>
+            {
+                page == true
+                ?
+                <>
+                <ContainerHeader 
+                    type={type}
+                    options={options} 
+                    OnInputChanged={setShowOptions}
+                />
+                {table}
+                {
+                    type != DataType.Frames ?
+                    <div  className="d-flex justify-content-end">
+                        <ReactBootstrap.Button 
+                        variant="link"
+                        className="pe-2"
+                        onClick={(_) => {setPage(!page)}}
+                        >
+                            <PlusCircleFill/>
+                        </ReactBootstrap.Button>
+                    </div>
+                    :
+                    null
+                }
+                </>
+                :
+                <>
+                <ReactBootstrap.Button 
+                variant="link"
+                className="ps-0"
+                onClick={(_) => {setPage(!page)}}
+                >
+                    <ChevronLeft/>
+                </ReactBootstrap.Button>
+                {form}
+                </>
+            }
         </main>
     )
 }
