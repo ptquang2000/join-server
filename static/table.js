@@ -25,7 +25,6 @@ const DeleteButton = ({deviceId, path, doRefresh}) => {
         >
             <TrashFill/>
         </button>
-        {console.log(show)}
             <ReactBootstrap.Overlay 
             rootClose
             onHide={() => setShow(false)}

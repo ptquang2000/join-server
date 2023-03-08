@@ -112,8 +112,10 @@ const Containers = ({ path, type }) => {
 
     const [options, setOptions] = React.useState([])
     const [showOptions, setShowOptions] = React.useState({})
-
-
+    React.useEffect(() => {
+        setPage(true)
+    }, [path])
+    
     const table = 
         type == DataType.Gateway ? <GatewayTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
         type == DataType.EndDevices ? <EndDeviceTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
