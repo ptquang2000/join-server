@@ -51,7 +51,13 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
                 >
                     <ThreeVerticalDots/>
                 </button>
-                <ReactBootstrap.Overlay target={target.current} show={show} placement="top">
+                <ReactBootstrap.Overlay 
+                target={target.current} 
+                rootClose 
+                show={show} 
+                placement="bottom"
+                onHide={() => setShow(false)}
+                >
                     {({
                     placement: _placement,
                     arrowProps: _arrowProps,
@@ -102,10 +108,11 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
 }
 
 const Containers = ({ path, type }) => {
-    const [page, setPage] = React.useState(false)
+    const [page, setPage] = React.useState(true)
 
     const [options, setOptions] = React.useState([])
     const [showOptions, setShowOptions] = React.useState({})
+
 
     const table = 
         type == DataType.Gateway ? <GatewayTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
@@ -113,10 +120,17 @@ const Containers = ({ path, type }) => {
         type == DataType.Frames ? <FrameTable path={path} setOptions={setOptions} showOptions={showOptions}/> : 
         null
 
+    const [successReq, setSuccessReq] = React.useState(false)
     const form = 
-        type == DataType.Gateway ? <GatewayForm/> :
-        type == DataType.EndDevices ? <EndDeviceForm/> :
+        type == DataType.Gateway ? <GatewayForm path={path} setSuccess={setSuccessReq}/> :
+        type == DataType.EndDevices ? <EndDeviceForm path={path} setSuccess={setSuccessReq}/> :
         null
+    React.useEffect(() => {
+        if (successReq && !page)
+        {
+            setPage(true)
+        }
+    }, [successReq])
 
     return (
         <main className="container-fluid p-3" style={{backgroundColor:"var(--bs-info-border-subtle)"}}>

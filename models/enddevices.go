@@ -3,13 +3,15 @@ package models
 import (
 	"math/rand"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type EndDevices struct {
 	Id uint32 `gorm:"not null;autoIncrement"`
 	NetId uint32 `gorm:"default:0"`
 	JoinEui uint64 `gorm:"default:0"`
-	DevEui uint64 `gorm:"uniqueIndex:unique_deveui"`
+	DevEui uint64 `gorm:"uniqueIndex:unique_deveui" json:",string"`
 	Appkey []byte `gorm:"type:blob"`
 	DevAddr uint32 `gorm:"default:null;uniqueIndex:unique_devaddr"`
 	DevNonce uint16 `gorm:"default:0"`
@@ -19,34 +21,48 @@ type EndDevices struct {
 func GenerateAppkey() (appkey []byte) {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
-
 	for i := 0; i < 16; i++ {
 		appkey = append(appkey, byte(random.Intn(256)))
 	}
-
 	return
 }
 
-func ReadEndevices() (endevices []EndDevices){
-	db.Find(&endevices)
+func GenerateDevAddr() (devaddr uint32) {
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+	devaddr = uint32(random.Intn(4294967296))
 	return
 }
 
-func CreateEndDevice() {
-	netid := uint32(0)
-	join_eui := uint64(0)
-	dev_eui := uint64(0xFEFFFF00000FFFFF)
-	appkey := GenerateAppkey()
-	
-	enddevice := &EndDevices {
-		NetId: netid,
-		JoinEui: join_eui,
-		DevEui: dev_eui,
-		Appkey: appkey,
+func FindEndDeviceByDevAddr(devAddr uint32) (endDevice EndDevices, tx *gorm.DB) {
+	tx = db.First(&endDevice, "dev_addr = ?", devAddr)
+	return
+}
+
+func ReadEndevices() (endDevices []EndDevices){
+	db.Find(&endDevices)
+	return
+}
+
+func DeleteEndDeviceById(id uint32) (tx *gorm.DB) {
+	tx = db.Delete(&EndDevices{}, id)
+	return
+}
+
+func FindEndDeviceById(id uint32) (endDevice EndDevices, tx *gorm.DB) {
+	tx = db.First(&endDevice, "id = ?", id)
+	return
+}
+
+func (device EndDevices) Create() (tx *gorm.DB) {
+	devAddr := GenerateDevAddr()
+	_, result := FindEndDeviceByDevAddr(devAddr)
+	for result.RowsAffected != 0 {
+		devAddr = GenerateDevAddr()
+		_, result = FindEndDeviceByDevAddr(devAddr)
 	}
-	enddevice.Create()
-}
+	device.DevAddr = devAddr
 
-func (device EndDevices) Create() {
-	db.Create(&device)
+	tx = db.Create(&device)
+	return
 }

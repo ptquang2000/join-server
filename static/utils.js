@@ -84,6 +84,12 @@ const ArrowCounterClockwise = () => {
     )
 }
 
+function hexToBase64(str) {
+    return btoa(String.fromCharCode.apply(null,
+      str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" "))
+    );
+}
+
 const base64ToHex = (str) => {
     for (var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = []; i < bin.length; ++i) {
         let tmp = bin.charCodeAt(i).toString(16)
@@ -103,7 +109,7 @@ const base64ToHexArray = (str) => {
     return hex
 }
 
-const numberToHex = (number) => {
+const numberToHex = (number, size) => {
     for (var i = 0, hex = []; i < size; i++) {
         let tmp = (number & BigInt(0xFF)).toString(16).toUpperCase()
         tmp = tmp.length == 1 ? "0" + tmp : tmp
@@ -111,6 +117,14 @@ const numberToHex = (number) => {
         number = number >> BigInt(8)
     }
     return hex.join(" ")
+}
+
+const hexToNum = (str) => {
+    let tmp = BigInt(0)
+    for (var i = 0; i < str.length; i += 2) {
+        tmp = (tmp << BigInt(8)) | BigInt(Number('0x' + str[i] + str[i + 1]))
+    }
+    return tmp
 }
 
 const generateHtmlEntity = (num, code, ref = []) => {
@@ -127,4 +141,8 @@ const generateHtmlEntity = (num, code, ref = []) => {
         }
     }
     return str.join('')
+}
+
+BigInt.prototype.toJSON = function () {
+    return this.toString();
 }
