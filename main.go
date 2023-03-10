@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/ptquang2000/join-server/models"
-	"github.com/ptquang2000/join-server/controllers"
+	"github.com/ptquang2000/lorawan-server/models"
+	"github.com/ptquang2000/lorawan-server/controllers"
+	"github.com/ptquang2000/lorawan-server/servers"
 )
 
 func main() {
@@ -10,6 +11,8 @@ func main() {
 	models.DBMigrate()
 
 	defer models.DBClose()
+
+	go servers.StartJoinServer()
 
 	controllers.StartServer()
 }

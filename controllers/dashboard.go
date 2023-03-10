@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ptquang2000/join-server/models"
+	"github.com/ptquang2000/lorawan-server/models"
 )
 
 var router *gin.Engine

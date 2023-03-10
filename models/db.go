@@ -21,8 +21,8 @@ var newLogger = logger.New(
 	},
   )
 
-var username, password string = "root", "example"
-var dsn, dbname string = "localhost", "joinserver"
+var username, password string = "root", "public"
+var dsn, dbname string = "localhost", "lorawan"
 var port uint = 3306
 
 var db *gorm.DB

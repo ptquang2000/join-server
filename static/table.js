@@ -22,39 +22,37 @@ const DeleteButton = ({deviceId, path, doRefresh}) => {
         ref={target} 
         className="btn btn-link p-1" 
         onClick={onClicked} 
-        >
-            <TrashFill/>
-        </button>
-            <ReactBootstrap.Overlay 
-            rootClose
-            onHide={() => setShow(false)}
-            target={target.current} 
-            show={show} 
-            placement="bottom">
-            {({
-            placement: _placement,
-            arrowProps: _arrowProps,
-            show: _show,
-            popper: _popper,
-            hasDoneInitialMeasure: _hasDoneInitialMeasure,
-            ...props
-            }) => (
-            <div
-                {...props}
-                style={{
-                position: 'relative',
-                backgroundColor: 'rgba(255, 100, 100, 0.85)',
-                padding: '2px 10px',
-                color: 'white',
-                borderRadius: 3,
-                ...props.style,
-                }}
-            >
-                Status code: {responseError.statusCode}
-            </div>
-            )}
-            </ReactBootstrap.Overlay>
+        ><TrashFill/></button>
         
+        <ReactBootstrap.Overlay 
+        rootClose
+        onHide={() => setShow(false)}
+        target={target.current} 
+        show={show} 
+        placement="bottom">
+        {({
+        placement: _placement,
+        arrowProps: _arrowProps,
+        show: _show,
+        popper: _popper,
+        hasDoneInitialMeasure: _hasDoneInitialMeasure,
+        ...props
+        }) => (
+        <div
+            {...props}
+            style={{
+            position: 'relative',
+            backgroundColor: 'rgba(255, 100, 100, 0.85)',
+            padding: '2px 10px',
+            color: 'white',
+            borderRadius: 3,
+            ...props.style,
+            }}
+        >
+            Status code: {responseError.statusCode}
+        </div>
+        )}
+        </ReactBootstrap.Overlay>
         </>
     )
 }
