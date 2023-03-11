@@ -9,7 +9,8 @@ import (
 )
 
 type Gateways struct {
-	Id uint32 `gorm:"not null;autoIncrement"`
+	gorm.Model
+
 	Username string `gorm:"type:varchar(100);default:null;uniqueIndex:unique_username"`
 	Password_hash string `gorm:"type:varchar(100);default:null" json:"Password"`
 	Salt string `gorm:"type:varchar(35);default:null"`

@@ -192,8 +192,8 @@ class App extends React.Component {
 
     render() {
         return (
-            <div className="container-lg position-absolute top-50 start-50 translate-middle border border-light-subtle rounded p-0">
-                <div className="container-lg d-flex flex-row p-0">
+            <div className="container-sm position-absolute top-50 start-50 translate-middle border border-light-subtle rounded p-0">
+                <div className="container-sm d-flex flex-row p-0">
                     <Navbars onTabChanged={this.onTabChanged}/>
                     <Containers path={this.state.path} type={this.state.dataType}/>
                 </div>

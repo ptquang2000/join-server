@@ -60,6 +60,7 @@ func SetupDashboardAPI() {
 	router.POST("/end-devices", func(c *gin.Context) {
 		var endDevice models.EndDevices
 		if err := c.BindJSON(&endDevice); err != nil {
+			fmt.Println(err)
 			return
 		}		
 		tx := endDevice.Create()

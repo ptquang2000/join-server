@@ -116,7 +116,7 @@ const numberToHex = (number, size) => {
         hex[hex.length] = tmp 
         number = number >> BigInt(8)
     }
-    return hex.join(" ")
+    return hex.reverse().join(" ")
 }
 
 const hexToNum = (str) => {

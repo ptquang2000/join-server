@@ -4,6 +4,7 @@ import (
     "fmt"
     "errors"
     "encoding/binary"
+    "log"
 
     "github.com/brocaar/lorawan"
     mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -23,7 +24,7 @@ var joinAcceptChannel = make(chan models.EndDevices)
 
 func joinRequestHandler(frame []byte) {
     var phy lorawan.PHYPayload
-	if err := phy.UnmarshalText(frame); err != nil {
+	if err := phy.UnmarshalBinary(frame); err != nil {
 		panic(err)
 	}
 
@@ -32,11 +33,11 @@ func joinRequestHandler(frame []byte) {
 		panic("MACPayload must be a *JoinRequestPayload")
 	}
 
-    joinEui, _ := jrPL.JoinEUI.MarshalText()
-    devEui, _ := jrPL.DevEUI.MarshalText()
+    joinEui, _ := jrPL.JoinEUI.MarshalBinary()
+    devEui, _ := jrPL.DevEUI.MarshalBinary()
 
     var joinRequestFrame = models.JoinRequests {
-        MacFrame: models.MacFrames{
+        MacFrames: models.MacFrames{
             Type: uint8(phy.MHDR.MType),
             Major: uint8(phy.MHDR.Major),
             Payload: frame[1: len(frame) - 4],
@@ -49,17 +50,20 @@ func joinRequestHandler(frame []byte) {
 
     endDevice, result := models.FindEndDeviceByDevEui(joinRequestFrame.DevEui)
     if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+        log.Println(fmt.Sprintf("Device with DevEui %d not found", joinRequestFrame.DevEui))
         return
     }
 
     if endDevice.JoinRequest == nil {
+        fmt.Println(endDevice.JoinRequest)
         joinRequestFrame.Create()
         endDevice.JoinRequest = &joinRequestFrame
     } else if endDevice.JoinRequest.DevNonce != joinRequestFrame.DevNonce - 1 {
+        fmt.Println("JoinRequest.DevNonce != joinRequestFrame.DevNonce - 1")
         return
     }
     endDevice.JoinRequest.DevNonce += 1
-    endDevice.Save()
+    endDevice.Update()
     joinAcceptChannel <- endDevice
 }
 
@@ -100,11 +104,15 @@ func StartJoinServer() {
 
     for endDevice := range joinAcceptChannel {
         var joinAcceptFrame = endDevice.JoinAccept
+        
         if joinAcceptFrame == nil {
-            joinAcceptFrame.NetId = endDevice.NetId
-            joinAcceptFrame.DevAddr = endDevice.DevAddr
+            joinAcceptFrame = &models.JoinAccepts{
+                NetId: endDevice.NetId,
+                DevAddr: endDevice.DevAddr,
+            }
             joinAcceptFrame.Create()
         } else {
+            fmt.Println(endDevice.JoinAccept)
             joinAcceptFrame.JoinNonce += 1
         }
 
@@ -133,10 +141,10 @@ func StartJoinServer() {
 
         appKey := lorawan.AES128Key(endDevice.Appkey)
         joinEUI := make([]byte, 8)
-        binary.BigEndian.PutUint64(netId, endDevice.JoinEui)
-        joinNonce := endDevice.JoinAccept.JoinNonce
+        binary.BigEndian.PutUint64(joinEUI, endDevice.JoinEui)
+        joinNonce := lorawan.DevNonce(joinAcceptFrame.JoinNonce)
 
-        if err := phy.SetDownlinkJoinMIC(lorawan.JoinRequestType, lorawan.EUI64(joinEUI), lorawan.DevNonce(joinNonce), appKey); err != nil {
+        if err := phy.SetDownlinkJoinMIC(lorawan.JoinRequestType, lorawan.EUI64(joinEUI), joinNonce, appKey); err != nil {
             panic(err)
         }
         if err := phy.EncryptJoinAcceptPayload(appKey); err != nil {
@@ -152,7 +160,7 @@ func StartJoinServer() {
 
         payload, _ := phy.MACPayload.MarshalBinary()
         mic, _ := phy.MIC.MarshalText()
-        joinAcceptFrame.MacFrame = models.MacFrames {
+        joinAcceptFrame.MacFrames = models.MacFrames{
             Type: uint8(lorawan.JoinAccept),
             Major: uint8(lorawan.LoRaWANR1),
             Payload: payload,
@@ -160,7 +168,7 @@ func StartJoinServer() {
         }
 
         endDevice.JoinAccept = joinAcceptFrame
-        endDevice.Save()
+        endDevice.Update()
     }
 
     client.Disconnect(250)

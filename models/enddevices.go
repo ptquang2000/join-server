@@ -8,15 +8,16 @@ import (
 )
 
 type EndDevices struct {
-	Id uint32 `gorm:"not null;autoIncrement"`
+	gorm.Model
+
 	NetId uint32 `gorm:"default:0"`
 	JoinEui uint64 `gorm:"default:0"`
 	DevEui uint64 `gorm:"uniqueIndex:unique_deveui" json:",string"`
-	Appkey [16]byte `gorm:"type:blob"`
+	Appkey []byte `gorm:"type:blob"`
 	DevAddr uint32 `gorm:"default:null;uniqueIndex:unique_devaddr"`
 
-	JoinAccept *JoinAccepts `gorm:"foreignKey:ID;default:null"`
-	JoinRequest *JoinRequests `gorm:"foreignKey:ID;default:null"`
+	JoinAccept *JoinAccepts `gorm:"foreignKey:DevAddr;references:DevAddr"`
+	JoinRequest *JoinRequests `gorm:"foreignKey:DevEui;references:DevEui"`
 }
 
 func GenerateAppkey() (appkey []byte) {
@@ -36,12 +37,12 @@ func GenerateDevAddr() (devaddr uint32) {
 }
 
 func FindEndDeviceByDevAddr(devAddr uint32) (endDevice EndDevices, tx *gorm.DB) {
-	tx = db.First(&endDevice, "dev_addr = ?", devAddr)
+	tx = db.Where("dev_addr = ?", devAddr).First(&endDevice)
 	return
 }
 
 func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevices, tx *gorm.DB) {
-	tx = db.First(&endDevice, "dev_addr = ?", devEui)
+	tx = db.Where("dev_eui = ?", devEui).Preload("JoinRequest").Preload("JoinAccept").First(&endDevice)
 	return
 }
 
@@ -73,7 +74,7 @@ func (device EndDevices) Create() (tx *gorm.DB) {
 	return
 }
 
-func (device EndDevices) Save() (tx *gorm.DB) {
-	tx = db.Save(&device)
+func (device EndDevices) Update() (tx *gorm.DB) {
+	tx = db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&device)
 	return
 }

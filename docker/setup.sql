@@ -35,4 +35,13 @@ CREATE TABLE `lorawan`.`gateways` (
 INSERT INTO `lorawan`.`join_servers`(username, password_hash, salt, is_superuser) 
 VALUES ('joinserver1', SHA2(concat('123456?aD', 'joinserver1'), 256), 'joinserver1', 1);
 
+-- SELECT password_hash, salt FROM ((SELECT * FROM lorawan.gateways) UNION (SELECT * FROM lorawan.join_servers)) AS user where user.username = 'joinserver1' LIMIT 1
+-- DROP TABLE lorawan.end_devices;
+-- DROP TABLE lorawan.join_accepts;
+-- DROP TABLE lorawan.join_requests;
+
+-- DELETE FROM lorawan.end_devices;
+-- DELETE FROM lorawan.join_accepts;
+-- DELETE FROM lorawan.join_requests;
+
 GO;

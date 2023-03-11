@@ -5,8 +5,6 @@ import (
 )
 
 type MacFrames struct {
-	gorm.Model
-
 	Type uint8
 	Major uint8
 	Payload []byte
@@ -17,7 +15,7 @@ type MacFrames struct {
 
 type JoinAccepts struct {
 	gorm.Model
-	MacFrame MacFrames `gorm:"foreignKey:ID"`
+	MacFrames
 
 	JoinNonce uint16 `gorm:"default:0"`
 
@@ -40,7 +38,7 @@ func (frame JoinAccepts) Create() {
 
 type JoinRequests struct {
 	gorm.Model
-	MacFrame MacFrames `gorm:"foreignKey:ID"`
+	MacFrames
 	
 	JoinEui uint64
 	DevEui uint64 `gorm:"uniqueIndex:unique_deveui"`
@@ -52,7 +50,7 @@ func (frame JoinRequests) Create() (tx *gorm.DB) {
 	return
 }
 
-func (frame JoinRequests) Save() (tx *gorm.DB) {
-	tx = db.Save(&frame)
+func (frame JoinRequests) Update() (tx *gorm.DB) {
+	tx = db.Updates(&frame)
 	return
 }

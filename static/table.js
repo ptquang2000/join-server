@@ -78,7 +78,7 @@ class FrameTable extends React.Component {
 const ByteBlocks = ({ size, value }) => {
     let hex = 
         typeof(value) === 'string' ? base64ToHex(value) :
-        typeof(value) === 'number' ? numberToHex(BigInt(value), size) : null;
+        typeof(value) === 'bigint' ? numberToHex(value, size) : null;
 
     return (
         <span 
@@ -91,7 +91,7 @@ const ByteBlocks = ({ size, value }) => {
 }
 
 const EndDeviceTable = ({ path, showOptions, setOptions }) => {
-    const [defaultOptions] = React.useState(["Appkey", "DevEui", "DevAddr"])
+    const [defaultOptions] = React.useState(["Appkey", "DevEui", "JoinEui", "DevAddr"])
     const [data, setData] = React.useState([])
     const [refreshData, setRefreshData] = React.useState(true)
 
@@ -113,10 +113,11 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
     const endevices  = data.map((device, index) => { return (
         <tr>
             <th scope="row">{index + 1}</th>
-            <td>{formatBusId(device.Id)}</td>
+            <td>{formatBusId(device.DevEui)}</td>
             {showOptions['Appkey'] ? <td><ByteBlocks value={device.Appkey} size={16}/></td> : null}
-            {showOptions['DevEui'] ? <td><ByteBlocks value={device.DevEui} size={8}/></td> : null}
-            {showOptions['DevAddr'] ? <td><ByteBlocks value={device.DevAddr} size={4}/></td> : null}
+            {showOptions['DevEui'] ? <td><ByteBlocks value={BigInt(device.DevEui)} size={8}/></td> : null}
+            {showOptions['JoinEui'] ? <td><ByteBlocks value={BigInt(device.JoinEui)} size={8}/></td> : null}
+            {showOptions['DevAddr'] ? <td><ByteBlocks value={BigInt(device.DevAddr)} size={4}/></td> : null}
             <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
             <td><DeleteButton deviceId={device.Id} path={path} doRefresh={setRefreshData}/></td>
         </tr>
@@ -130,6 +131,7 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
                 <th scope="col">Bus ID</th>
                 {showOptions['Appkey'] ? <th scope="col">AppKey</th> : null}
                 {showOptions['DevEui'] ? <th scope="col">DevEUI</th> : null}
+                {showOptions['JoinEui'] ? <th scope="col">JoinEui</th> : null}
                 {showOptions['DevAddr'] ? <th scope="col">DevAddr</th> : null}
                 <th scope="col">Actions</th>
                 <th scope="col"></th>
