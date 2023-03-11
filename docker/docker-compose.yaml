@@ -4,9 +4,11 @@ services:
   emqx:
     image: emqx/emqx:latest
     volumes:
-    - ./local-override.conf:/opt/emqx/data/local-override.conf
+    - ./local-override.conf:/opt/emqx/data/configs/local-override.conf
     environment:
     - "EMQX_NAME=emqx"
+    - "EMQX_DASHBOARD__DEFAULT_USERNAME=admin"
+    - "EMQX_DASHBOARD__DEFAULT_PASSWORD=admin"
     ports:
     - "1883:1883"
     - "18083:18083"

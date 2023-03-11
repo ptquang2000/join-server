@@ -2,8 +2,9 @@ package main
 
 import (
     "fmt"
-    mqtt "github.com/eclipse/paho.mqtt.golang"
     "time"
+
+    mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 var gatewayId = "station1" 
@@ -31,7 +32,6 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func main() {
-    // mqtt.DEBUG = log.New(os.Stdout, "[DEBUG] ", 0)
     opts := mqtt.NewClientOptions()
     opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
     opts.SetClientID(gatewayId)
@@ -45,7 +45,13 @@ func main() {
         panic(token.Error())
     }
 
-    subscribe(client)
+    topics := map[string]byte {
+        joinAcceptTopic: 1, 
+        configsTopic: 1,
+    }
+    token := client.SubscribeMultiple(topics, nil)
+    token.Wait()
+    
     go publish(client)
     
     for {
@@ -59,19 +65,9 @@ func main() {
 
 func publish(client mqtt.Client) {
     for i := 0; true; i++ {
-        text := fmt.Sprintf("Message %d", i)
+        text := fmt.Sprintf("AAEBAQEBAQEBAgICAgICAgIDAwm5ezI=")
         token := client.Publish(publishTopic, 0, false, text)
         token.Wait()
         time.Sleep(time.Second)
     }
-}
-
-func subscribe(client mqtt.Client) {
-    topics := map[string]byte {
-        joinAcceptTopic: 1, 
-        configsTopic: 1,
-    }
-    token := client.SubscribeMultiple(topics, nil)
-    token.Wait()
-    fmt.Printf("Subscribed to topic: [%s, %s]", joinAcceptTopic, configsTopic)
 }

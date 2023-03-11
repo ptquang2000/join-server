@@ -12,10 +12,11 @@ type EndDevices struct {
 	NetId uint32 `gorm:"default:0"`
 	JoinEui uint64 `gorm:"default:0"`
 	DevEui uint64 `gorm:"uniqueIndex:unique_deveui" json:",string"`
-	Appkey []byte `gorm:"type:blob"`
+	Appkey [16]byte `gorm:"type:blob"`
 	DevAddr uint32 `gorm:"default:null;uniqueIndex:unique_devaddr"`
-	DevNonce uint16 `gorm:"default:0"`
-	JoinNonce uint16 `gorm:"default:0"`
+
+	JoinAccept *JoinAccepts `gorm:"foreignKey:ID;default:null"`
+	JoinRequest *JoinRequests `gorm:"foreignKey:ID;default:null"`
 }
 
 func GenerateAppkey() (appkey []byte) {
@@ -36,6 +37,11 @@ func GenerateDevAddr() (devaddr uint32) {
 
 func FindEndDeviceByDevAddr(devAddr uint32) (endDevice EndDevices, tx *gorm.DB) {
 	tx = db.First(&endDevice, "dev_addr = ?", devAddr)
+	return
+}
+
+func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevices, tx *gorm.DB) {
+	tx = db.First(&endDevice, "dev_addr = ?", devEui)
 	return
 }
 
@@ -64,5 +70,10 @@ func (device EndDevices) Create() (tx *gorm.DB) {
 	device.DevAddr = devAddr
 
 	tx = db.Create(&device)
+	return
+}
+
+func (device EndDevices) Save() (tx *gorm.DB) {
+	tx = db.Save(&device)
 	return
 }
