@@ -35,13 +35,14 @@ func joinRequestHandler(frame []byte) {
 
     joinEui, _ := jrPL.JoinEUI.MarshalBinary()
     devEui, _ := jrPL.DevEUI.MarshalBinary()
+    payload, _ := phy.MACPayload.MarshalBinary()
+    mic, _ := phy.MIC.MarshalText()
 
     var joinRequestFrame = models.JoinRequests {
-        MacFrames: models.MacFrames{
-            Type: uint8(phy.MHDR.MType),
+        MacFrame: &models.MacFrames{
             Major: uint8(phy.MHDR.Major),
-            Payload: frame[1: len(frame) - 4],
-            Mic: frame[len(frame) - 4: len(frame)],
+            Payload: payload,
+            Mic: mic,
         },
         JoinEui: binary.BigEndian.Uint64(joinEui),
         DevEui:  binary.BigEndian.Uint64(devEui),
@@ -55,14 +56,14 @@ func joinRequestHandler(frame []byte) {
     }
 
     if endDevice.JoinRequest == nil {
-        fmt.Println(endDevice.JoinRequest)
         joinRequestFrame.Create()
         endDevice.JoinRequest = &joinRequestFrame
     } else if endDevice.JoinRequest.DevNonce != joinRequestFrame.DevNonce - 1 {
-        fmt.Println("JoinRequest.DevNonce != joinRequestFrame.DevNonce - 1")
         return
+    } else {
+        endDevice.JoinRequest.DevNonce += 1
     }
-    endDevice.JoinRequest.DevNonce += 1
+    
     endDevice.Update()
     joinAcceptChannel <- endDevice
 }
@@ -107,12 +108,12 @@ func StartJoinServer() {
         
         if joinAcceptFrame == nil {
             joinAcceptFrame = &models.JoinAccepts{
+                MacFrame: &models.MacFrames{},
                 NetId: endDevice.NetId,
                 DevAddr: endDevice.DevAddr,
             }
             joinAcceptFrame.Create()
         } else {
-            fmt.Println(endDevice.JoinAccept)
             joinAcceptFrame.JoinNonce += 1
         }
 
@@ -160,12 +161,10 @@ func StartJoinServer() {
 
         payload, _ := phy.MACPayload.MarshalBinary()
         mic, _ := phy.MIC.MarshalText()
-        joinAcceptFrame.MacFrames = models.MacFrames{
-            Type: uint8(lorawan.JoinAccept),
-            Major: uint8(lorawan.LoRaWANR1),
-            Payload: payload,
-            Mic: mic,
-        }
+        
+        joinAcceptFrame.MacFrame.Major = uint8(lorawan.LoRaWANR1)
+        joinAcceptFrame.MacFrame.Payload = payload
+        joinAcceptFrame.MacFrame.Mic = mic
 
         endDevice.JoinAccept = joinAcceptFrame
         endDevice.Update()

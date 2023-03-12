@@ -89,7 +89,7 @@ func SetupDashboardAPI() {
 
 
 	router.GET("/frames", func(c *gin.Context) {
-		c.JSONP(http.StatusOK, models.ReadGateways())
+		c.JSONP(http.StatusOK, models.ReadFrames())
 	})
 
 	router.GET("/", func(c *gin.Context) {

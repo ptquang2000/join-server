@@ -5,7 +5,10 @@ import (
 )
 
 type MacFrames struct {
-	Type uint8
+	gorm.Model
+
+	FrameID uint`gorm:"uniqueIndex:unique_frame"`
+	FrameType uint8 `gorm:"uniqueIndex:unique_frame"`
 	Major uint8
 	Payload []byte
 	Mic []byte
@@ -13,9 +16,29 @@ type MacFrames struct {
 	Snr int16
 }
 
+func ReadFrames() (frames []MacFrames) {
+	return
+}
+
+type JoinRequests struct {
+	gorm.Model
+
+	MacFrame *MacFrames `gorm:"polymorphic:Frame;polymorphicValue:0"`
+	
+	JoinEui uint64
+	DevEui uint64 `gorm:"uniqueIndex:unique_deveui"`
+	DevNonce uint16
+}
+
+func (frame JoinRequests) Create() (tx *gorm.DB) {
+	tx = db.Create(&frame)
+	return
+}
+
 type JoinAccepts struct {
 	gorm.Model
-	MacFrames
+
+	MacFrame *MacFrames `gorm:"polymorphic:Frame;polymorphicValue:1"`
 
 	JoinNonce uint16 `gorm:"default:0"`
 
@@ -32,25 +55,7 @@ type JoinAccepts struct {
 	CFListType uint8 `gorm:"default:1"`
 }
 
-func (frame JoinAccepts) Create() {
-	db.Create(&frame)
-}
-
-type JoinRequests struct {
-	gorm.Model
-	MacFrames
-	
-	JoinEui uint64
-	DevEui uint64 `gorm:"uniqueIndex:unique_deveui"`
-	DevNonce uint16
-}
-
-func (frame JoinRequests) Create() (tx *gorm.DB) {
+func (frame JoinAccepts) Create() (tx *gorm.DB) {
 	tx = db.Create(&frame)
-	return
-}
-
-func (frame JoinRequests) Update() (tx *gorm.DB) {
-	tx = db.Updates(&frame)
 	return
 }

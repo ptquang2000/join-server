@@ -18,10 +18,9 @@ var configsTopic = fmt.Sprintf("gateways/%s", gatewayId)
 
 var publishTopic = "frames/joinrequest"
 
-var receivedMsgChannel = make(chan string)
-
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-    receivedMsgChannel <- fmt.Sprintf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+    text := fmt.Sprintf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+    fmt.Println(text)
 }
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
@@ -53,20 +52,15 @@ func main() {
     token := client.SubscribeMultiple(topics, nil)
     token.Wait()
     
-    go publish(client)
+    publish(client)
     
-    for {
-        msg := <- receivedMsgChannel
-        fmt.Println(msg)
-    }
-
     client.Disconnect(250)
     fmt.Println("Client disconnected")
 }
 
 func publish(client mqtt.Client) {
     appKey := [16]byte{0x69, 0x6d, 0xab, 0xcf, 0x83, 0x55, 0xa5, 0x59, 0xcd, 0xed, 0x8b, 0xd3, 0xf3, 0x65, 0x57, 0xb5 }
-    for i := 90; true; i++ {
+    for i := 0; i < 2; i++ {
         phy := lorawan.PHYPayload{
             MHDR: lorawan.MHDR{
                 MType: lorawan.JoinRequest,

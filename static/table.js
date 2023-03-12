@@ -57,22 +57,66 @@ const DeleteButton = ({deviceId, path, doRefresh}) => {
     )
 }
 
-class FrameTable extends React.Component {
-    state = {
-        data: [],
-        showOptions: [],
+const FrameTable = ({ path, showOptions, setOptions }) => {
+    const [defaultOptions] = React.useState(["Type", "Major", "RSSI", "SNR"])
+    const [data, setData] = React.useState([])
+    const [refreshData, setRefreshData] = React.useState(true)
+
+    React.useEffect(() => {
+        if (refreshData)
+        {
+            axios.get(path).then(res => {
+                console.log(res.data)
+                setData(res.data)
+            })
+            setOptions(defaultOptions)
+        }
+        setRefreshData(false)
+    }, [path, refreshData])
+
+    const getFrameType = (type) => {
+        const frames = [
+            "JoinAccept",
+            "UnconfirmedDataUp",
+            "UnconfirmedDataDown",
+            "ConfirmedDataUp",
+            "ConfirmedDataDown",
+            "RejoinRequest",
+            "Proprietary",
+        ]
+        return frames[type]
     }
 
-    componentDidMount() {
-        axios.get(this.props.path).then(res => {
-            this.setState({ data: res.data })
-        })
-        this.props.setOptions(this.state.showOptions)
-    }
+    const frames  = data.map((frame, index) => { return (
+        <tr>
+            <th scope="row">{index + 1}</th>
+            <td>{frame.ID}</td>
+            {showOptions['Type'] ? <td>{getFrameType(frame.Type)}</td> : null}
+            {showOptions['Major'] ? <td>{frame.Major}</td> : null}
+            {showOptions['RSSI'] ? <td>{frame.Rssi}</td> : null}
+            {showOptions['SNR'] ? <td>{frame.Snr}</td> : null}
+            <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
+            <td><DeleteButton deviceId={frame.ID} path={path} doRefresh={setRefreshData}/></td>
+        </tr>
+    )})
 
-    render() {
-        return null
-    }
+    return (
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Frame</th>
+                {showOptions['Type'] ? <th scope="col">Type</th> : null}
+                {showOptions['Major'] ? <th scope="col">Major</th> : null}
+                {showOptions['RSSI'] ? <th scope="col">RSSI</th> : null}
+                {showOptions['SNR'] ? <th scope="col">SNR</th> : null}
+                <th scope="col">Actions</th>
+                <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>{ frames }</tbody>
+        </table>
+    )
 }
 
 const ByteBlocks = ({ size, value }) => {
@@ -110,7 +154,7 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
         return devEui & 0xFFFFFF
     }
 
-    const endevices  = data.map((device, index) => { return (
+    const endevices = data.map((device, index) => { return (
         <tr>
             <th scope="row">{index + 1}</th>
             <td>{formatBusId(device.DevEui)}</td>

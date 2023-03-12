@@ -42,7 +42,10 @@ func FindEndDeviceByDevAddr(devAddr uint32) (endDevice EndDevices, tx *gorm.DB) 
 }
 
 func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevices, tx *gorm.DB) {
-	tx = db.Where("dev_eui = ?", devEui).Preload("JoinRequest").Preload("JoinAccept").First(&endDevice)
+	tx = db.Where("dev_eui = ?", devEui).
+		Preload("JoinRequest.MacFrame").
+		Preload("JoinAccept.MacFrame").
+		First(&endDevice)
 	return
 }
 
