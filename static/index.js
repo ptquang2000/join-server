@@ -131,6 +131,7 @@ const Containers = ({ path, type }) => {
         if (successReq && !page)
         {
             setPage(true)
+            setSuccessReq(false)
         }
     }, [successReq])
 

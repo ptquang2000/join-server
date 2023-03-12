@@ -61,10 +61,8 @@ func joinRequestHandler(frame []byte) {
         endDevice.JoinRequest = &joinRequestFrame
     } else if endDevice.JoinRequest.DevNonce != joinRequestFrame.DevNonce - 1 {
         return
-    } else {
-        endDevice.JoinRequest.DevNonce += 1
     }
-    
+    endDevice.JoinRequest.DevNonce = joinRequestFrame.DevNonce
     endDevice.Update()
     joinAcceptChannel <- endDevice
 }

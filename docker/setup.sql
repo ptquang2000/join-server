@@ -40,6 +40,8 @@ VALUES ('joinserver1', SHA2(concat('123456?aD', 'joinserver1'), 256), 'joinserve
 -- DROP TABLE lorawan.join_accepts;
 -- DROP TABLE lorawan.join_requests;
 -- DROP TABLE lorawan.mac_frames;
+-- DROP TABLE lorawan.end_devices;
+-- DROP TABLE lorawan.gateways;
 
 -- DELETE FROM lorawan.join_accepts;
 -- DELETE FROM lorawan.join_requests;

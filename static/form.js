@@ -52,7 +52,7 @@ const GatewayForm = ({ path, setSuccess }) => {
             <ReactBootstrap.Col xs={1}></ReactBootstrap.Col>
             <ReactBootstrap.Col xs={5} className="fw-bold">
                 
-                <ReactBootstrap.Form noValidate validated={validated} onSubmit={onSubmitted}>
+                <ReactBootstrap.Form autoComplete="off" feedback={false} noValidate validated={validated} onSubmit={onSubmitted}>
                     <ReactBootstrap.Form.Group controlId="Username">
                         <ReactBootstrap.Form.Label class>Mqtt Username</ReactBootstrap.Form.Label>
                         <ReactBootstrap.Form.Control 
@@ -195,7 +195,7 @@ const EndDeviceForm = ({ path, setSuccess }) => {
         <ReactBootstrap.Col xs="1"/>
         <ReactBootstrap.Col className="fw-bold">
             
-            <ReactBootstrap.Form noValidate validated={validated} onSubmit={onSubmitted}>
+            <ReactBootstrap.Form autoComplete="off" feedback={false} noValidate validated={validated} onSubmit={onSubmitted}>
                 <ReactBootstrap.Form.Group controlId="formNetId">
                     <ReactBootstrap.Form.Label>NetID</ReactBootstrap.Form.Label>
                     <ReactBootstrap.Form.Control 

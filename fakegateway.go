@@ -18,9 +18,26 @@ var configsTopic = fmt.Sprintf("gateways/%s", gatewayId)
 
 var publishTopic = "frames/joinrequest"
 
+var c = make(chan string)
+const expected = 9
+var count = 1
+
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-    text := fmt.Sprintf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
-    fmt.Println(text)
+    var phy lorawan.PHYPayload
+    if err := phy.UnmarshalBinary(msg.Payload()); err != nil {
+        panic(err)
+    }
+    phyJSON, err := phy.MarshalJSON()
+    if err != nil {
+        panic(err)
+    }
+    c <- string(phyJSON)
+
+    if count == expected {
+        close(c)
+    } else {
+        count++
+    }
 }
 
 var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
@@ -52,13 +69,28 @@ func main() {
     token := client.SubscribeMultiple(topics, nil)
     token.Wait()
     
-    publish(client)
-    
+    go func() {
+        dev_eui := [8]byte{0xAA, 0xAA, 0x0A, 0x00, 0x00, 0xFF, 0xFF, 0xFE}
+        publish(client, dev_eui)
+    }()
+    go func() {
+        dev_eui := [8]byte{0xBB, 0xBB, 0x0B, 0x00, 0x00, 0xFF, 0xFF, 0xFE}
+        publish(client, dev_eui)
+    }()
+    go func() {
+        dev_eui := [8]byte{0xCC, 0xCC, 0x0C, 0x00, 0x00, 0xFF, 0xFF, 0xFE}
+        publish(client, dev_eui)
+    }()
+
+    for res := range c {
+        fmt.Println(res)
+    }
+
     client.Disconnect(250)
     fmt.Println("Client disconnected")
 }
 
-func publish(client mqtt.Client) {
+func publish(client mqtt.Client, dev_eui [8]byte) {
     appKey := [16]byte{0x69, 0x6d, 0xab, 0xcf, 0x83, 0x55, 0xa5, 0x59, 0xcd, 0xed, 0x8b, 0xd3, 0xf3, 0x65, 0x57, 0xb5 }
     for i := 0; i < 3; i++ {
         phy := lorawan.PHYPayload{
@@ -67,8 +99,8 @@ func publish(client mqtt.Client) {
                 Major: lorawan.LoRaWANR1,
             },
             MACPayload: &lorawan.JoinRequestPayload{
-                JoinEUI:  [8]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-                DevEUI:   [8]byte{0xAA, 0xAA, 0x0A, 0x00, 0x00, 0xFF, 0xFF, 0xFE},
+                JoinEUI: [8]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+                DevEUI: dev_eui,
                 DevNonce: lorawan.DevNonce(i),
             },
         }
