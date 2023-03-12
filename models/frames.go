@@ -17,6 +17,12 @@ type MacFrames struct {
 }
 
 func ReadFrames() (frames []MacFrames) {
+	db.Find(&frames)
+	return
+}
+
+func FindFramesWithLimit(limit uint64) (frames []MacFrames) {
+	db.Order("id desc").Limit(int(limit)).Find(&frames)
 	return
 }
 

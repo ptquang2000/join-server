@@ -60,7 +60,7 @@ func main() {
 
 func publish(client mqtt.Client) {
     appKey := [16]byte{0x69, 0x6d, 0xab, 0xcf, 0x83, 0x55, 0xa5, 0x59, 0xcd, 0xed, 0x8b, 0xd3, 0xf3, 0x65, 0x57, 0xb5 }
-    for i := 0; i < 2; i++ {
+    for i := 0; i < 3; i++ {
         phy := lorawan.PHYPayload{
             MHDR: lorawan.MHDR{
                 MType: lorawan.JoinRequest,

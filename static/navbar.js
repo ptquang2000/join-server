@@ -1,6 +1,6 @@
 const DataType = {
     Gateway : 'Gateway',
-    EndDevices: 'Endevices',
+    EndDevices: 'EndDevices',
     Frames: 'Frames',
 }
 

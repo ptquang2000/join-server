@@ -49,7 +49,7 @@ func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevices, tx *gorm.DB) {
 	return
 }
 
-func ReadEndevices() (endDevices []EndDevices){
+func ReadEndDevices() (endDevices []EndDevices){
 	db.Find(&endDevices)
 	return
 }

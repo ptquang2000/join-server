@@ -44,10 +44,12 @@ VALUES ('joinserver1', SHA2(concat('123456?aD', 'joinserver1'), 256), 'joinserve
 -- DELETE FROM lorawan.join_accepts;
 -- DELETE FROM lorawan.join_requests;
 -- DELETE FROM lorawan.mac_frames;
+-- DELETE FROM lorawan.join_requests;DELETE FROM lorawan.join_accepts;DELETE FROM lorawan.mac_frames;
 
 -- SELECT * FROM `lorawan`.`mac_frames` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`join_requests` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`join_accepts` LIMIT 1000;
+-- SELECT * FROM `lorawan`.`end_devices` LIMIT 1000;
 
 -- INSERT INTO `lorawan`.`mac_frames`(frame_id, frame_type) VALUES (1, 1);
 

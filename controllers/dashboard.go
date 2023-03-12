@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 	"strconv"
-
+	
 	"github.com/gin-gonic/gin"
 	"github.com/ptquang2000/lorawan-server/models"
 )
@@ -54,7 +54,7 @@ func SetupDashboardAPI() {
 	})
 
 	router.GET("/end-devices", func(c *gin.Context) {
-		c.JSONP(http.StatusOK, models.ReadEndevices())
+		c.JSONP(http.StatusOK, models.ReadEndDevices())
 	})
 
 	router.POST("/end-devices", func(c *gin.Context) {

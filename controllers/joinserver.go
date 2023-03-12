@@ -23,12 +23,13 @@ const joinAcceptTopic = "frames/joinaccept"
 var joinAcceptChannel = make(chan models.EndDevices)
 
 func joinRequestHandler(frame []byte) {
+
     var phy lorawan.PHYPayload
 	if err := phy.UnmarshalBinary(frame); err != nil {
-		panic(err)
+        panic(err)
 	}
 
-	jrPL, ok := phy.MACPayload.(*lorawan.JoinRequestPayload)
+    jrPL, ok := phy.MACPayload.(*lorawan.JoinRequestPayload)
 	if !ok {
 		panic("MACPayload must be a *JoinRequestPayload")
 	}
@@ -69,7 +70,6 @@ func joinRequestHandler(frame []byte) {
 }
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-
     switch topic := msg.Topic(); topic {
 	case joinRequestTopic:
 		joinRequestHandler(msg.Payload())
