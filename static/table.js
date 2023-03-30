@@ -170,7 +170,7 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
             {showOptions['JoinEui'] ? <td><ByteBlocks value={BigInt(device.JoinEui)} size={8}/></td> : null}
             {showOptions['DevAddr'] ? <td><ByteBlocks value={BigInt(device.DevAddr)} size={4}/></td> : null}
             <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
-            <td><DeleteButton deviceId={device.Id} path={path} doRefresh={setRefreshData}/></td>
+            <td><DeleteButton deviceId={device.ID} path={path} doRefresh={setRefreshData}/></td>
         </tr>
     )})
 
@@ -219,9 +219,9 @@ const GatewayTable = ({ path, showOptions, setOptions }) => {
                 {gateway.Is_superuser ? <CheckIcon/> : <CrossIcon/>}
             </td> 
             : null}
-            {showOptions['Created Date'] ? <td>{gateway.Created}</td> : null}
+            {showOptions['Created Date'] ? <td>{gateway.CreatedAt}</td> : null}
             <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
-            <td><DeleteButton deviceId={gateway.Id} path={path} doRefresh={setRefreshData}/></td>
+            <td><DeleteButton deviceId={gateway.ID} path={path} doRefresh={setRefreshData}/></td>
         </tr>
     )})
 

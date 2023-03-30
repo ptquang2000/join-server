@@ -14,12 +14,12 @@ import (
 var newLogger = logger.New(
 	log.New(os.Stdout, "\r\n", log.LstdFlags),
 	logger.Config{
-	  SlowThreshold: time.Second,
-	  LogLevel: logger.Silent,
-	  IgnoreRecordNotFoundError: true, 
-	  Colorful: true,
+		SlowThreshold:             time.Second,
+		LogLevel:                  logger.Info,
+		IgnoreRecordNotFoundError: true,
+		Colorful:                  true,
 	},
-  )
+)
 
 var username, password string = "root", "public"
 var dsn, dbname string = "localhost", "lorawan"
@@ -41,15 +41,16 @@ func DBConnect() {
 
 func DBClose() {
 	instance, _ := db.DB()
-    _ = instance.Close()
+	_ = instance.Close()
 }
 
 func DBMigrate() {
-	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&MacFrames{})
-	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinRequests{})
-	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinAccepts{})
-	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&EndDevices{})
-	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&Gateways{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&GatewayAcl{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&Gateway{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&MacFrame{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinRequest{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinAccept{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&EndDevice{})
 }
 
 type DBModels interface {

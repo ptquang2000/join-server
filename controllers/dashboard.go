@@ -25,7 +25,7 @@ func SetupDashboardAPI() {
 	})
 	
 	router.POST("/gateways", func(c *gin.Context) {
-		var gateway models.Gateways
+		var gateway models.Gateway
 		if err := c.BindJSON(&gateway); err != nil {
 			return
 		}
@@ -58,7 +58,7 @@ func SetupDashboardAPI() {
 	})
 
 	router.POST("/end-devices", func(c *gin.Context) {
-		var endDevice models.EndDevices
+		var endDevice models.EndDevice
 		if err := c.BindJSON(&endDevice); err != nil {
 			fmt.Println(err)
 			return

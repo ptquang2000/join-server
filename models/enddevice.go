@@ -7,17 +7,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type EndDevices struct {
+type EndDevice struct {
 	gorm.Model
 
-	NetId uint32 `gorm:"default:0"`
+	NetId   uint32 `gorm:"default:0"`
 	JoinEui uint64 `gorm:"default:0"`
-	DevEui uint64 `gorm:"uniqueIndex:unique_deveui" json:",string"`
-	Appkey []byte `gorm:"type:blob"`
+	DevEui  uint64 `gorm:"uniqueIndex:unique_deveui" json:",string"`
+	Appkey  []byte `gorm:"type:blob"`
 	DevAddr uint32 `gorm:"default:null;uniqueIndex:unique_devaddr"`
 
-	JoinAccept *JoinAccepts `gorm:"foreignKey:DevAddr;references:DevAddr"`
-	JoinRequest *JoinRequests `gorm:"foreignKey:DevEui;references:DevEui"`
+	JoinAccept  *JoinAccept  `gorm:"foreignKey:DevAddr;references:DevAddr"`
+	JoinRequest *JoinRequest `gorm:"foreignKey:DevEui;references:DevEui"`
 }
 
 func GenerateAppkey() (appkey []byte) {
@@ -36,12 +36,12 @@ func GenerateDevAddr() (devaddr uint32) {
 	return
 }
 
-func FindEndDeviceByDevAddr(devAddr uint32) (endDevice EndDevices, tx *gorm.DB) {
+func FindEndDeviceByDevAddr(devAddr uint32) (endDevice EndDevice, tx *gorm.DB) {
 	tx = db.Where("dev_addr = ?", devAddr).First(&endDevice)
 	return
 }
 
-func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevices, tx *gorm.DB) {
+func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevice, tx *gorm.DB) {
 	tx = db.Where("dev_eui = ?", devEui).
 		Preload("JoinRequest.MacFrame").
 		Preload("JoinAccept.MacFrame").
@@ -49,22 +49,22 @@ func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevices, tx *gorm.DB) {
 	return
 }
 
-func ReadEndDevices() (endDevices []EndDevices){
+func ReadEndDevices() (endDevices []EndDevice) {
 	db.Find(&endDevices)
 	return
 }
 
 func DeleteEndDeviceById(id uint32) (tx *gorm.DB) {
-	tx = db.Delete(&EndDevices{}, id)
+	tx = db.Unscoped().Delete(&EndDevice{}, id)
 	return
 }
 
-func FindEndDeviceById(id uint32) (endDevice EndDevices, tx *gorm.DB) {
+func FindEndDeviceById(id uint32) (endDevice EndDevice, tx *gorm.DB) {
 	tx = db.First(&endDevice, "id = ?", id)
 	return
 }
 
-func (device EndDevices) Create() (tx *gorm.DB) {
+func (device EndDevice) Create() (tx *gorm.DB) {
 	devAddr := GenerateDevAddr()
 	_, result := FindEndDeviceByDevAddr(devAddr)
 	for result.RowsAffected != 0 {
@@ -77,7 +77,7 @@ func (device EndDevices) Create() (tx *gorm.DB) {
 	return
 }
 
-func (device EndDevices) Update() (tx *gorm.DB) {
+func (device EndDevice) Update() (tx *gorm.DB) {
 	tx = db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&device)
 	return
 }
