@@ -2,6 +2,7 @@ package models
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -55,8 +56,25 @@ func ReadGateways() (gateways []Gateway) {
 	return
 }
 
-func FindGatewayById(id uint32) (gateway Gateway) {
-	db.First(&gateway, id)
+func FindGatewayById(id uint32) (gateway *Gateway) {
+	tx := db.First(&gateway, id)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	return
+}
+
+func FindGatewayJoinAcceptTopicById(id uint32) (topic string) {
+	var gateway Gateway
+	result := db.Preload("GatewayAcls").First(&gateway, id)
+	if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		for _, acl := range gateway.GatewayAcls {
+			if acl.Action == SUBSCRIBE && acl.Permission == ALLOW {
+				topic = acl.Topic
+				break
+			}
+		}
+	}
 	return
 }
 

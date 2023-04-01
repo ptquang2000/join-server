@@ -56,23 +56,16 @@ INSERT INTO `lorawan`.`gateway_acls`(`username`, `client_id`, `action`, `permiss
 VALUES ('joinserver1', 'joinserver1', 'subscribe', 'allow', '#');
 
 -- SELECT password_hash, salt FROM ((SELECT * FROM lorawan.gateways) UNION (SELECT * FROM lorawan.join_servers)) AS user where user.username = 'joinserver1' LIMIT 1
--- DROP TABLE lorawan.join_requests;DROP TABLE lorawan.join_accepts;DROP TABLE lorawan.mac_frames;
--- DELETE FROM lorawan.join_requests;DELETE FROM lorawan.join_accepts;DELETE FROM lorawan.mac_frames;
-
--- DROP TABLE lorawan.join_accepts;
 -- DROP TABLE lorawan.join_requests;
--- DROP TABLE lorawan.mac_frames;
+-- DROP TABLE lorawan.join_accepts;
 -- DROP TABLE lorawan.end_devices;
 -- DROP TABLE lorawan.gateways;
 
--- DELETE FROM lorawan.join_accepts;
--- DELETE FROM lorawan.join_requests;
--- DELETE FROM lorawan.mac_frames;
-
--- SELECT * FROM `lorawan`.`mac_frames` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`join_requests` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`join_accepts` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`end_devices` LIMIT 1000;
+-- SELECT * FROM `lorawan`.`gateways` LIMIT 1000;
+-- SELECT * FROM `lorawan`.`gateway_acls` LIMIT 1000;
 
 -- INSERT INTO `lorawan`.`mac_frames`(frame_id, frame_type) VALUES (1, 1);
 

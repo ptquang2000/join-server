@@ -16,8 +16,8 @@ type EndDevice struct {
 	Appkey  []byte `gorm:"type:blob"`
 	DevAddr uint32 `gorm:"default:null;uniqueIndex:unique_devaddr"`
 
-	JoinAccept  *JoinAccept  `gorm:"foreignKey:DevAddr;references:DevAddr"`
-	JoinRequest *JoinRequest `gorm:"foreignKey:DevEui;references:DevEui"`
+	DevNonce  uint16 `gorm:"default:0;"`
+	JoinNonce uint16 `gorm:"default:0;"`
 }
 
 func GenerateAppkey() (appkey []byte) {
@@ -42,10 +42,7 @@ func FindEndDeviceByDevAddr(devAddr uint32) (endDevice EndDevice, tx *gorm.DB) {
 }
 
 func FindEndDeviceByDevEui(devEui uint64) (endDevice EndDevice, tx *gorm.DB) {
-	tx = db.Where("dev_eui = ?", devEui).
-		Preload("JoinRequest.MacFrame").
-		Preload("JoinAccept.MacFrame").
-		First(&endDevice)
+	tx = db.Where("dev_eui = ?", devEui).First(&endDevice)
 	return
 }
 

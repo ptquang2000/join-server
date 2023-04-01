@@ -15,7 +15,7 @@ var newLogger = logger.New(
 	log.New(os.Stdout, "\r\n", log.LstdFlags),
 	logger.Config{
 		SlowThreshold:             time.Second,
-		LogLevel:                  logger.Info,
+		LogLevel:                  logger.Error,
 		IgnoreRecordNotFoundError: true,
 		Colorful:                  true,
 	},
@@ -47,7 +47,6 @@ func DBClose() {
 func DBMigrate() {
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&GatewayAcl{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&Gateway{})
-	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&MacFrame{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinRequest{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&JoinAccept{})
 	db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4").AutoMigrate(&EndDevice{})

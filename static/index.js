@@ -109,6 +109,7 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
 
 const Containers = ({ path, type }) => {
     const [page, setPage] = React.useState(true)
+    const [refreshTable, setRefreshTable] = React.useState(false)
 
     const [options, setOptions] = React.useState([])
     const [showOptions, setShowOptions] = React.useState({})
@@ -119,7 +120,7 @@ const Containers = ({ path, type }) => {
     const table = 
         type == DataType.Gateway ? <GatewayTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
         type == DataType.EndDevices ? <EndDeviceTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
-        type == DataType.Frames ? <FrameTable path={path} setOptions={setOptions} showOptions={showOptions}/> : 
+        type == DataType.Frames ? <FrameTable path={path} setOptions={setOptions} showOptions={showOptions} refreshTable={refreshTable}/> : 
         null
 
     const [successReq, setSuccessReq] = React.useState(false)
@@ -159,7 +160,15 @@ const Containers = ({ path, type }) => {
                         </ReactBootstrap.Button>
                     </div>
                     :
-                    null
+                    <div  className="d-flex justify-content-end">
+                        <ReactBootstrap.Button 
+                        variant="link"
+                        className="pe-2"
+                        onClick={(_) => {setRefreshTable(!refreshTable)}}
+                        >
+                            <ArrowCounterClockwise/>
+                        </ReactBootstrap.Button>
+                    </div>
                 }
                 </>
                 :

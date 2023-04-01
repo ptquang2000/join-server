@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"time"
 	"strconv"
-	
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/ptquang2000/lorawan-server/models"
 )
@@ -23,7 +23,7 @@ func SetupDashboardAPI() {
 	router.GET("/gateways", func(c *gin.Context) {
 		c.JSONP(http.StatusOK, models.ReadGateways())
 	})
-	
+
 	router.POST("/gateways", func(c *gin.Context) {
 		var gateway models.Gateway
 		if err := c.BindJSON(&gateway); err != nil {
@@ -62,7 +62,7 @@ func SetupDashboardAPI() {
 		if err := c.BindJSON(&endDevice); err != nil {
 			fmt.Println(err)
 			return
-		}		
+		}
 		tx := endDevice.Create()
 		if tx.Error != nil {
 			c.AbortWithStatusJSON(http.StatusConflict, tx.Error)
@@ -87,9 +87,14 @@ func SetupDashboardAPI() {
 		}
 	})
 
-
-	router.GET("/frames", func(c *gin.Context) {
-		c.JSONP(http.StatusOK, models.ReadFrames())
+	router.GET("/frames/:limit", func(c *gin.Context) {
+		limit := c.Param("limit")
+		res, err := strconv.ParseUint(limit, 10, 32)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, err)
+			return
+		}
+		c.JSONP(http.StatusOK, models.ReadLimitFrames(int(res)))
 	})
 
 	router.GET("/", func(c *gin.Context) {

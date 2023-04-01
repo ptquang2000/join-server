@@ -8,7 +8,7 @@ const Navbars = ( { onTabChanged } ) => {
     const tabs = [
         { type: DataType.Gateway, path: "gateways", text: "Gateways", isActive: true, icon: <RouterIcon/> },
         { type: DataType.EndDevices, path: "end-devices", text: "End Devices", isActive: false, icon: <BusIcon/> },
-        { type: DataType.Frames, path: "frames", text: "Frames", isActive: false, icon: <ChatLeftText/> },
+        { type: DataType.Frames, path: "frames/10", text: "Frames", isActive: false, icon: <ChatLeftText/> },
     ]
 
     const navbarHandle = (e) => {

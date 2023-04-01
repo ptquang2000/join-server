@@ -57,30 +57,30 @@ const DeleteButton = ({deviceId, path, doRefresh}) => {
     )
 }
 
-const FrameTable = ({ path, showOptions, setOptions }) => {
-    const [defaultOptions] = React.useState(["Type", "Major", "RSSI", "SNR"])
+const FrameTable = ({ path, showOptions, setOptions, refreshTable }) => {
+    const [defaultOptions] = React.useState(["Type", "RSSI", "SNR", "Mic", "Gateway ID"])
     const [data, setData] = React.useState([])
     const [refreshData, setRefreshData] = React.useState(true)
 
-    var interval = null
+    const getData = () => {
+        axios.get(path).then(res => {
+            setData(res.data)
+        })
+        setOptions(defaultOptions)
+    }
 
     React.useEffect(() => {
         if (refreshData)
         {
-            const getFrames = () => {
-                axios.get(path).then(res => {
-                    setData(res.data)
-                })
-                setOptions(defaultOptions)
-            }
-            getFrames()
-            interval = setInterval(getFrames, 1000)
+            getData()
         }
         setRefreshData(false)
 
     }, [path, refreshData])
 
-    React.useEffect( () => () => clearInterval(interval), [] );
+    React.useEffect(() => {
+        getData()
+    }, [refreshTable])
 
     const getFrameType = (type) => {
         const frames = [
@@ -99,11 +99,11 @@ const FrameTable = ({ path, showOptions, setOptions }) => {
     const frames  = data.map((frame, index) => { return (
         <tr>
             <th scope="row">{index + 1}</th>
-            <td>{frame.ID}</td>
             {showOptions['Type'] ? <td>{getFrameType(frame.FrameType)}</td> : null}
-            {showOptions['Major'] ? <td>{frame.Major}</td> : null}
             {showOptions['RSSI'] ? <td>{frame.Rssi}</td> : null}
             {showOptions['SNR'] ? <td>{frame.Snr}</td> : null}
+            {showOptions['Mic'] ? <th scope="col">{frame.Mic}</th> : null}
+            {showOptions['Gateway ID'] ? <th scope="col">{frame.GatewayID}</th> : null}
             <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
         </tr>
     )})
@@ -113,11 +113,11 @@ const FrameTable = ({ path, showOptions, setOptions }) => {
             <thead>
                 <tr>
                 <th scope="col">#</th>
-                <th scope="col">ID</th>
                 {showOptions['Type'] ? <th scope="col">Type</th> : null}
-                {showOptions['Major'] ? <th scope="col">Major</th> : null}
                 {showOptions['RSSI'] ? <th scope="col">RSSI</th> : null}
                 {showOptions['SNR'] ? <th scope="col">SNR</th> : null}
+                {showOptions['Mic'] ? <th scope="col">Mic</th> : null}
+                {showOptions['Gateway ID'] ? <th scope="col">Gateway ID</th> : null}
                 <th scope="col">Actions</th>
                 </tr>
             </thead>
