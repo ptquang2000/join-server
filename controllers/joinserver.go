@@ -87,6 +87,9 @@ func joinRequestHandler(msg []byte) {
 	if endDevice.DevNonce < devNonce {
 		endDevice.DevNonce = devNonce
 		joinAcceptChannel <- endDevice
+	} else {
+		logMsg := fmt.Sprintf("DevNonce %d from %d has already been used", jrPL.DevNonce, devEui)
+		log.Print(logMsg)
 	}
 }
 

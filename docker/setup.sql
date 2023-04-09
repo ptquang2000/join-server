@@ -67,6 +67,6 @@ VALUES ('joinserver1', 'joinserver1', 'subscribe', 'allow', '#');
 -- SELECT * FROM `lorawan`.`gateways` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`gateway_acls` LIMIT 1000;
 
--- INSERT INTO `lorawan`.`mac_frames`(frame_id, frame_type) VALUES (1, 1);
+-- UPDATE `lorawan`.`end_devices` SET `dev_nonce` = 0, `join_nonce` = 0 WHERE `id` = 1
 
 -- SELECT * FROM `lorawan`.`gateway_acls`
