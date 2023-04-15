@@ -82,16 +82,21 @@ func setupGw(devices []*FakeEndDevice) (gateways map[string]*FakeGateway) {
 			panic(token.Error())
 		}
 
-		fmt.Println(gw.JaTopic)
-		token := client.Subscribe(gw.JaTopic, 0, func(c mqtt.Client, m mqtt.Message) {
+		subHandler := func(c mqtt.Client, m mqtt.Message) {
 			for _, device := range devices {
 				device.FrameChan <- m.Payload()
 			}
-		})
+		}
+
+		fmt.Println(gw.JaTopic)
+		token := client.Subscribe(gw.JaTopic, 0, subHandler)
+		token.Wait()
+		token = client.Subscribe(gw.DlTopic, 0, subHandler)
 		token.Wait()
 
 		gw.MqttClient = client
 		gw.JrChan = make(chan []byte)
+		gw.UlChan = make(chan []byte)
 	}
 	return
 }
@@ -105,7 +110,7 @@ func (gateway *FakeGateway) publish(frame []byte, topic string) {
 
 	token := gateway.MqttClient.Publish(topic, 0, false, bytes)
 	token.Wait()
-	logMsg := fmt.Sprintf("Send message %d rssi %d, snr %d", gateway.ID, mqtMsg.Rssi, mqtMsg.Snr)
+	logMsg := fmt.Sprintf("Send message by gateway: %d - rssi %d, snr %d", gateway.ID, mqtMsg.Rssi, mqtMsg.Snr)
 	log.Println(logMsg)
 }
 

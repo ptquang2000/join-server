@@ -41,7 +41,7 @@ func testJoin(devices []*FakeEndDevice, gateways map[string]*FakeGateway) {
 		}
 	}()
 
-	go func(devices []*FakeEndDevice, gateways map[string]*FakeGateway) {
+	go func() {
 		for i := start; i < end; i++ {
 			devices[1].JaWait.Add(1)
 
@@ -50,7 +50,14 @@ func testJoin(devices []*FakeEndDevice, gateways map[string]*FakeGateway) {
 
 			devices[1].JaWait.Wait()
 		}
-	}(devices, gateways)
+	}()
+}
+
+func testUnconfirmedUl(devices []*FakeEndDevice, gateways map[string]*FakeGateway) {
+	go func() {
+		devices[0].sendUnconfirmedUl(gateways["gateway1"])
+		devices[0].FCntUp += 1
+	}()
 }
 
 func main() {
@@ -61,15 +68,15 @@ func main() {
 	go runDevice(devices)
 
 	fmt.Println("Enter to test join")
+	fmt.Scanln()
+
 	testJoin(devices, gateways)
 	fmt.Scanln()
 
 	fmt.Println("Enter to test uplink")
 	fmt.Scanln()
 
-	// func() {
-	// 	publishUnUl(clients[0], fakeDevices[0], gateways["gateway1"])
-	// }()
+	testUnconfirmedUl(devices, gateways)
 
 	fmt.Println("Enter to exist")
 	fmt.Scanln()

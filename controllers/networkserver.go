@@ -116,7 +116,7 @@ func uplinkHandler(msg []byte) {
 			log.Println("*FRMPayload must be DataPayload")
 			return
 		}
-		fmt.Println(pl.Bytes)
+		fmt.Println(string(pl.Bytes))
 	}
 }
 

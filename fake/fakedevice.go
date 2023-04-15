@@ -33,9 +33,13 @@ func (device *FakeEndDevice) startFlow() {
 		}
 
 		var success bool
-
-		if phy.MHDR.MType == lorawan.JoinAccept {
+		switch phy.MHDR.MType {
+		case lorawan.JoinAccept:
 			success = device.joinAcceptHandler(&phy)
+		case lorawan.ConfirmedDataDown:
+			fallthrough
+		case lorawan.UnconfirmedDataDown:
+			success = device.downlinkHandler(&phy)
 		}
 
 		if success {
@@ -46,6 +50,36 @@ func (device *FakeEndDevice) startFlow() {
 			fmt.Println(string(phyJSON))
 		}
 	}
+}
+
+func (device *FakeEndDevice) downlinkHandler(phy *lorawan.PHYPayload) bool {
+	res, err := phy.ValidateDownlinkDataMIC(lorawan.LoRaWAN1_0, 0, device.nwkSKey)
+	if !res || err != nil {
+		return false
+	}
+
+	macPL, ok := phy.MACPayload.(*lorawan.MACPayload)
+	if !ok {
+		panic("Payload must be a *MACPayload")
+	}
+
+	if *macPL.FPort == 0 {
+		if err := phy.DecryptFRMPayload(device.nwkSKey); err != nil {
+			panic("Decrypt FRMPayload to mac commands fail")
+		}
+	} else {
+		if err := phy.DecryptFRMPayload(device.appSKey); err != nil {
+			panic("Decrypt FRMPayload to data payload fail")
+		}
+
+		pl, ok := macPL.FRMPayload[0].(*lorawan.DataPayload)
+		if !ok {
+			panic("*FRMPayload must be DataPayload")
+		}
+		fmt.Println(pl.Bytes)
+	}
+
+	return true
 }
 
 func (device *FakeEndDevice) joinAcceptHandler(phy *lorawan.PHYPayload) bool {
