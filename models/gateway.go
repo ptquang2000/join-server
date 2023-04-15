@@ -109,6 +109,18 @@ func (gateway Gateway) Create() (tx *gorm.DB) {
 			Permission: ALLOW,
 			Topic:      fmt.Sprintf("frames/joinaccept/%s", gateway.Username),
 		},
+		{
+			ClientId:   gateway.Username,
+			Action:     PUBLISH,
+			Permission: ALLOW,
+			Topic:      "frames/uplink",
+		},
+		{
+			ClientId:   gateway.Username,
+			Action:     SUBSCRIBE,
+			Permission: ALLOW,
+			Topic:      fmt.Sprintf("frames/downlink/%s", gateway.Username),
+		},
 	}
 
 	tx = db.Create(&gateway)

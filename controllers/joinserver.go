@@ -37,7 +37,7 @@ func joinRequestHandler(msg []byte) {
 
 	jrPL, ok := phy.MACPayload.(*lorawan.JoinRequestPayload)
 	if !ok {
-		log.Print("MACPayload must be a *JoinRequestPayload")
+		log.Print("Payload must be a *JoinRequestPayload")
 		return
 	}
 
@@ -114,6 +114,9 @@ func JoinAcceptHandler(i_endDevice models.EndDevice) {
 	}
 
 	joinNonce := endDevice.JoinNonce + 1
+
+	endDevice.DevAddr = models.GetNewDevAddr()
+
 	jaFrame := &models.JoinAccept{
 		MacFrame: models.MacFrame{
 			Major:     uint8(lorawan.LoRaWANR1),
@@ -176,6 +179,8 @@ func JoinAcceptHandler(i_endDevice models.EndDevice) {
 	mic, _ := phy.MIC.MarshalText()
 	jaFrame.MacFrame.Mic = mic
 	endDevice.JoinNonce = joinNonce
+	endDevice.FCntDown = 0
+	endDevice.FCntUp = 0
 
 	jaFrame.Create()
 	endDevice.Update()

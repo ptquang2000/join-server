@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -10,21 +11,27 @@ import (
 
 var client mqtt.Client
 
-const username = "joinserver1"
-const password = "123456?aD"
-const broker = "localhost"
-const port = 1883
-
-const deDuplicationDelay = 200
+const (
+	username           = "joinserver1"
+	password           = "123456?aD"
+	broker             = "localhost"
+	port               = 1883
+	deDuplicationDelay = 200
+	receiveDelay       = 400 // 2000
+	joinAcceptDelay    = 400 // 6000
+	joinRequestTopic   = "frames/joinrequest"
+	uplinkTopic        = "frames/uplink"
+)
 
 var joinAcceptChannel = make(chan models.EndDevice)
-
-const joinRequestTopic = "frames/joinrequest"
+var downlinkChannel = make(chan models.EndDevice)
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	switch topic := msg.Topic(); topic {
 	case joinRequestTopic:
 		go joinRequestHandler(msg.Payload())
+	case uplinkTopic:
+		go uplinkHandler(msg.Payload())
 	default:
 		panic("Topic is not expected")
 	}
@@ -39,6 +46,9 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func StartJoinServer() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
 	opts.SetClientID(username)
@@ -52,13 +62,28 @@ func StartJoinServer() {
 		panic(token.Error())
 	}
 
-	token := client.Subscribe(joinRequestTopic, 1, nil)
+	topics := map[string]byte{
+		joinRequestTopic: 1,
+		uplinkTopic:      1,
+	}
+	token := client.SubscribeMultiple(topics, nil)
 	token.Wait()
 
-	for endDevice := range joinAcceptChannel {
-		time.Sleep(time.Millisecond * deDuplicationDelay)
-		JoinAcceptHandler(endDevice)
-	}
+	go func() {
+		for endDevice := range joinAcceptChannel {
+			time.Sleep(time.Millisecond * (joinAcceptDelay - deDuplicationDelay))
+			JoinAcceptHandler(endDevice)
+		}
+	}()
+
+	go func() {
+		for endDevice := range downlinkChannel {
+			time.Sleep(time.Millisecond * (receiveDelay - deDuplicationDelay))
+			downlinkHandler(endDevice)
+		}
+	}()
+
+	wg.Wait()
 
 	client.Disconnect(250)
 	fmt.Println("Client disconnected")

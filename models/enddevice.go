@@ -18,6 +18,9 @@ type EndDevice struct {
 
 	DevNonce  uint16 `gorm:"default:0;"`
 	JoinNonce uint16 `gorm:"default:0;"`
+
+	FCntUp   uint16 `gorm:"default:0;"`
+	FCntDown uint16 `gorm:"default:0;"`
 }
 
 func GenerateAppkey() (appkey []byte) {
@@ -61,15 +64,17 @@ func FindEndDeviceById(id uint32) (endDevice EndDevice, tx *gorm.DB) {
 	return
 }
 
-func (device EndDevice) Create() (tx *gorm.DB) {
-	devAddr := GenerateDevAddr()
+func GetNewDevAddr() (devAddr uint32) {
+	devAddr = GenerateDevAddr()
 	_, result := FindEndDeviceByDevAddr(devAddr)
 	for result.RowsAffected != 0 {
 		devAddr = GenerateDevAddr()
 		_, result = FindEndDeviceByDevAddr(devAddr)
 	}
-	device.DevAddr = devAddr
+	return
+}
 
+func (device EndDevice) Create() (tx *gorm.DB) {
 	tx = db.Create(&device)
 	return
 }
