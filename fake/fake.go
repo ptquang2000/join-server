@@ -60,6 +60,13 @@ func testUnconfirmedUl(devices []*FakeEndDevice, gateways map[string]*FakeGatewa
 	}()
 }
 
+func testConfirmedUl(devices []*FakeEndDevice, gateways map[string]*FakeGateway) {
+	go func() {
+		devices[0].sendConfirmedUl(gateways["gateway1"])
+		devices[0].FCntUp += 1
+	}()
+}
+
 func main() {
 	devices := setUpDev()
 	gateways := setupGw(devices)
@@ -73,10 +80,14 @@ func main() {
 	testJoin(devices, gateways)
 	fmt.Scanln()
 
-	fmt.Println("Enter to test uplink")
+	fmt.Println("Enter to test unconfirmed uplink")
 	fmt.Scanln()
 
 	testUnconfirmedUl(devices, gateways)
+
+	fmt.Println("Enter to test confirmed uplink")
+	fmt.Scanln()
+	testConfirmedUl(devices, gateways)
 
 	fmt.Println("Enter to exist")
 	fmt.Scanln()

@@ -183,5 +183,5 @@ func JoinAcceptHandler(i_endDevice models.EndDevice) {
 	endDevice.FCntUp = 0
 
 	jaFrame.Create()
-	endDevice.Update()
+	endDevice.Save()
 }

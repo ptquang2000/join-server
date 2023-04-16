@@ -37,9 +37,9 @@ func (device *FakeEndDevice) startFlow() {
 		case lorawan.JoinAccept:
 			success = device.joinAcceptHandler(&phy)
 		case lorawan.ConfirmedDataDown:
-			fallthrough
+			success = device.confirmedDownlinkHandler(&phy)
 		case lorawan.UnconfirmedDataDown:
-			success = device.downlinkHandler(&phy)
+			success = device.unconfirmedDownlinkHandler(&phy)
 		}
 
 		if success {
@@ -52,7 +52,11 @@ func (device *FakeEndDevice) startFlow() {
 	}
 }
 
-func (device *FakeEndDevice) downlinkHandler(phy *lorawan.PHYPayload) bool {
+func (device *FakeEndDevice) confirmedDownlinkHandler(phy *lorawan.PHYPayload) bool {
+	return true
+}
+
+func (device *FakeEndDevice) unconfirmedDownlinkHandler(phy *lorawan.PHYPayload) bool {
 	res, err := phy.ValidateDownlinkDataMIC(lorawan.LoRaWAN1_0, 0, device.nwkSKey)
 	if !res || err != nil {
 		return false
@@ -61,6 +65,10 @@ func (device *FakeEndDevice) downlinkHandler(phy *lorawan.PHYPayload) bool {
 	macPL, ok := phy.MACPayload.(*lorawan.MACPayload)
 	if !ok {
 		panic("Payload must be a *MACPayload")
+	}
+
+	if macPL.FPort == nil {
+		return true
 	}
 
 	if *macPL.FPort == 0 {
@@ -201,16 +209,58 @@ func (dev *FakeEndDevice) sendUnconfirmedUl(gateway *FakeGateway) {
 	gateway.UlChan <- frame
 }
 
+func (dev *FakeEndDevice) sendConfirmedUl(gateway *FakeGateway) {
+	nwkSKey := dev.nwkSKey
+	appSKey := dev.appSKey
+	fPort := uint8(10)
+
+	dataPL := "Hello"
+
+	phy := lorawan.PHYPayload{
+		MHDR: lorawan.MHDR{
+			MType: lorawan.ConfirmedDataUp,
+			Major: lorawan.Major(lorawan.LoRaWAN1_0),
+		},
+		MACPayload: &lorawan.MACPayload{
+			FHDR: lorawan.FHDR{
+				DevAddr: lorawan.DevAddr(dev.devAddr),
+				FCtrl: lorawan.FCtrl{
+					ADR:       false,
+					ADRACKReq: false,
+					ACK:       false,
+				},
+				FCnt: uint32(dev.FCntUp),
+			},
+			FPort:      &fPort,
+			FRMPayload: []lorawan.Payload{&lorawan.DataPayload{Bytes: []byte(dataPL)}},
+		},
+	}
+
+	if err := phy.EncryptFRMPayload(appSKey); err != nil {
+		panic(err)
+	}
+
+	if err := phy.SetUplinkDataMIC(lorawan.LoRaWAN1_0, 0, 0, 0, nwkSKey, lorawan.AES128Key{}); err != nil {
+		panic(err)
+	}
+
+	frame, err := phy.MarshalBinary()
+	if err != nil {
+		panic(err)
+	}
+	gateway.UlChan <- frame
+}
+
 func setUpDev() (fakeDevices []*FakeEndDevice) {
 	fakeDevices = append(fakeDevices, &FakeEndDevice{
-		appKey:    [16]byte{0x0e, 0xfe, 0x82, 0x00, 0x6e, 0x16, 0x80, 0xfa, 0x90, 0x05, 0x2a, 0xce, 0x4c, 0xed, 0xe3, 0x3b},
+		appKey:    [16]byte{0x96, 0xf4, 0x15, 0x5e, 0xfa, 0x37, 0xbe, 0xb7, 0x60, 0x5e, 0x4d, 0x5d, 0x6d, 0x65, 0x64, 0xe8},
 		devEui:    [8]byte{0xAA, 0xAA, 0x0A, 0x00, 0x00, 0xFF, 0xFF, 0xFE},
 		devNonce:  0,
 		FrameChan: make(chan []byte),
 	})
 
 	fakeDevices = append(fakeDevices, &FakeEndDevice{
-		appKey:    [16]byte{0xe9, 0x49, 0xad, 0xc4, 0xc5, 0x87, 0x72, 0x8f, 0x92, 0x60, 0x55, 0xe4, 0x6c, 0x16, 0xdc, 0xc6},
+		appKey:    [16]byte{0xb6, 0xd5, 0xc0, 0x0a, 0xd6, 0xfa, 0x96, 0x4d, 0x4b, 0xa9, 0xa0, 0x16, 0x52, 0x64, 0x7b, 0x93},
 		devEui:    [8]byte{0xBB, 0xBB, 0x0B, 0x00, 0x00, 0xFF, 0xFF, 0xFE},
 		devNonce:  0,
 		FrameChan: make(chan []byte),

@@ -17,8 +17,8 @@ const (
 	broker             = "localhost"
 	port               = 1883
 	deDuplicationDelay = 200
-	receiveDelay       = 400 // 2000
-	joinAcceptDelay    = 400 // 6000
+	receiveDelay       = 2000
+	joinAcceptDelay    = 6000
 	joinRequestTopic   = "frames/joinrequest"
 	uplinkTopic        = "frames/uplink"
 )

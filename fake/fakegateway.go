@@ -48,7 +48,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 func setupGw(devices []*FakeEndDevice) (gateways map[string]*FakeGateway) {
 	gateways = map[string]*FakeGateway{
 		"gateway1": {
-			ID:          6,
+			ID:          1,
 			Username:    "gateway1",
 			Password:    "123456?aD",
 			JrTopic:     jrTopic,
@@ -58,7 +58,7 @@ func setupGw(devices []*FakeEndDevice) (gateways map[string]*FakeGateway) {
 			ConfigTopic: fmt.Sprintf(configsTopic, "gateway1"),
 		},
 		"gateway2": {
-			ID:          7,
+			ID:          2,
 			Username:    "gateway2",
 			Password:    "123456?aD",
 			JrTopic:     jrTopic,

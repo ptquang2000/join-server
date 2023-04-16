@@ -126,3 +126,28 @@ func (frame JoinAccept) Save() (tx *gorm.DB) {
 	tx = db.Save(&frame)
 	return
 }
+
+type MacPayload struct {
+	MacFrame
+	DevEui  uint64
+	DevAddr uint32
+	FCtrl   []byte
+	FCnt    uint16
+	FOpts   []byte
+	FPort   uint8
+}
+
+func (frame MacPayload) Create() (tx *gorm.DB) {
+	tx = db.Create(&frame)
+	return
+}
+
+func (frame MacPayload) Save() (tx *gorm.DB) {
+	tx = db.Save(&frame)
+	return
+}
+
+func FindMacFrameByDevAddrAndFCnt(devAddr uint32, fCnt uint16) (frames []MacPayload, tx *gorm.DB) {
+	tx = db.Where("dev_addr = ? and f_cnt = ?", devAddr, fCnt).Find(&frames)
+	return
+}

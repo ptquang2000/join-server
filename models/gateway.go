@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -70,8 +71,26 @@ func FindGatewayJoinAcceptTopicById(id uint32) (topic string) {
 	if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		for _, acl := range gateway.GatewayAcls {
 			if acl.Action == SUBSCRIBE && acl.Permission == ALLOW {
-				topic = acl.Topic
-				break
+				if strings.Contains(acl.Topic, "joinaccept") {
+					topic = acl.Topic
+					break
+				}
+			}
+		}
+	}
+	return
+}
+
+func FindGatewayDownlinkTopicById(id uint32) (topic string) {
+	var gateway Gateway
+	result := db.Preload("GatewayAcls").First(&gateway, id)
+	if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		for _, acl := range gateway.GatewayAcls {
+			if acl.Action == SUBSCRIBE && acl.Permission == ALLOW {
+				if strings.Contains(acl.Topic, "downlink") {
+					topic = acl.Topic
+					break
+				}
 			}
 		}
 	}

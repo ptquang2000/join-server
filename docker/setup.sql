@@ -63,6 +63,7 @@ VALUES ('joinserver1', 'joinserver1', 'subscribe', 'allow', '#');
 
 -- SELECT * FROM `lorawan`.`join_requests` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`join_accepts` LIMIT 1000;
+-- SELECT * FROM `lorawan`.`mac_payloads` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`end_devices` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`gateways` LIMIT 1000;
 -- SELECT * FROM `lorawan`.`gateway_acls` LIMIT 1000;
