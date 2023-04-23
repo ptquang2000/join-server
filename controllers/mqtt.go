@@ -16,9 +16,7 @@ const (
 	password           = "123456?aD"
 	broker             = "localhost"
 	port               = 1883
-	deDuplicationDelay = 200
-	receiveDelay       = 1000
-	joinAcceptDelay    = 3000
+	deDuplicationDelay = 2000
 	joinRequestTopic   = "frames/joinrequest"
 	uplinkTopic        = "frames/uplink"
 )
@@ -71,14 +69,14 @@ func StartJoinServer() {
 
 	go func() {
 		for endDevice := range joinAcceptChannel {
-			time.Sleep(time.Millisecond * (joinAcceptDelay - deDuplicationDelay))
+			time.Sleep(time.Millisecond * 3000)
 			JoinAcceptHandler(endDevice)
 		}
 	}()
 
 	go func() {
 		for endDevice := range downlinkChannel {
-			time.Sleep(time.Millisecond * (receiveDelay - deDuplicationDelay))
+			time.Sleep(time.Millisecond * 1000)
 			downlinkHandler(endDevice)
 		}
 	}()

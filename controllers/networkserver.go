@@ -102,11 +102,11 @@ func uplinkHandler(msg []byte) {
 		log.Println(logMsg)
 	}
 
+	endDevice.FCntUp += 1
 	if phy.MHDR.MType == lorawan.ConfirmedDataUp {
 		downlinkChannel <- endDevice
 	}
 
-	endDevice.FCntUp += 1
 	endDevice.Update()
 }
 
