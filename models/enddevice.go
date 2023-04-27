@@ -125,17 +125,17 @@ func GetNewDevAddr() (devAddr uint32) {
 	return
 }
 
-func (device EndDevice) Create() (tx *gorm.DB) {
+func (device *EndDevice) Create() (tx *gorm.DB) {
 	tx = db.Create(&device)
 	return
 }
 
-func (device EndDevice) Update() (tx *gorm.DB) {
+func (device *EndDevice) Update() (tx *gorm.DB) {
 	tx = db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&device)
 	return
 }
 
-func (device EndDevice) Save() (tx *gorm.DB) {
+func (device *EndDevice) Save() (tx *gorm.DB) {
 	tx = db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&device)
 	return
 }

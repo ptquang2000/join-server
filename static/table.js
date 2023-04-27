@@ -158,7 +158,7 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
     }, [path, refreshData])
 
     const formatBusId = (devEui) => {
-        return devEui & 0xFFFFFF
+        return (BigInt(devEui) & BigInt(0xFFFFFF)).toString()
     }
 
     const endDevices = data.map((device, index) => { return (

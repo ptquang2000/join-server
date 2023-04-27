@@ -109,7 +109,7 @@ func DeleteGatewayById(id uint32) (tx *gorm.DB) {
 	return
 }
 
-func (gateway Gateway) Create() (tx *gorm.DB) {
+func (gateway *Gateway) Create() (tx *gorm.DB) {
 	hash := sha256.New()
 	hash.Write([]byte(gateway.Password_hash + gateway.Salt))
 	password_hash := fmt.Sprintf("%x", hash.Sum(nil))

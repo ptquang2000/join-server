@@ -93,7 +93,7 @@ func joinRequestHandler(msg []byte) {
 	}
 }
 
-func JoinAcceptHandler(i_endDevice models.EndDevice) {
+func joinAcceptHandler(i_endDevice models.EndDevice) {
 	endDevice, tx := models.FindEndDeviceById(uint32(i_endDevice.ID))
 	if tx.Error != nil {
 		panic("Why join accept when there is no matched end-device ?")

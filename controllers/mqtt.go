@@ -69,15 +69,19 @@ func StartJoinServer() {
 
 	go func() {
 		for endDevice := range joinAcceptChannel {
-			time.Sleep(time.Millisecond * 3000)
-			JoinAcceptHandler(endDevice)
+			go func(endDevice *models.EndDevice) {
+				time.Sleep(time.Millisecond * 3000)
+				joinAcceptHandler(*endDevice)
+			}(&endDevice)
 		}
 	}()
 
 	go func() {
 		for endDevice := range downlinkChannel {
-			time.Sleep(time.Millisecond * 1000)
-			downlinkHandler(endDevice)
+			go func(endDevice *models.EndDevice) {
+				time.Sleep(time.Millisecond * 1000)
+				downlinkHandler(*endDevice)
+			}(&endDevice)
 		}
 	}()
 

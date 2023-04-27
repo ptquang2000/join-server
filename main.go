@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/ptquang2000/lorawan-server/models"
 	"github.com/ptquang2000/lorawan-server/controllers"
+	"github.com/ptquang2000/lorawan-server/models"
 )
 
 func main() {
