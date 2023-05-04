@@ -27,9 +27,9 @@ var downlinkChannel = make(chan models.EndDevice)
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	switch topic := msg.Topic(); topic {
 	case joinRequestTopic:
-		go joinRequestHandler(msg.Payload())
+		joinRequestHandler(msg.Payload())
 	case uplinkTopic:
-		go uplinkHandler(msg.Payload())
+		uplinkHandler(msg.Payload())
 	default:
 		panic("Topic is not expected")
 	}

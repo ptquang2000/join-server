@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/brocaar/lorawan"
+	"github.com/brocaar/lorawan/airtime"
 	"github.com/ptquang2000/lorawan-server/models"
 	"gorm.io/gorm"
 )
@@ -82,7 +84,13 @@ func joinRequestHandler(msg []byte) {
 		DevEui:   devEui,
 		DevNonce: uint16(jrPL.DevNonce),
 	}
-	jrFrame.Create()
+
+    existedFrames := models.FindJoinRequestsByMic(mic)
+    if len(existedFrames) > 0 {
+        jrFrame.Create()
+		return
+    }
+    jrFrame.Create()
 
 	if endDevice.DevNonce < devNonce {
 		endDevice.DevNonce = devNonce
@@ -105,13 +113,21 @@ func joinAcceptHandler(i_endDevice models.EndDevice) {
 	}
 	endDevice.DevNonce = i_endDevice.DevNonce
 
-	frames, _ := models.FindJoinRequestByDevEuiAndDevNonce(endDevice.DevEui, endDevice.DevNonce)
-	bestFrame := frames[0].MacFrame
-	for _, frame := range frames[1:] {
-		if !bestFrame.IsBetterGateway(frame.MacFrame) {
-			bestFrame = frame.MacFrame
-		}
-	}
+    frames, _ := models.FindJoinRequestByDevEuiAndDevNonce(endDevice.DevEui, endDevice.DevNonce)
+    bestFrame := frames[0].MacFrame
+    for _, frame := range frames[1:] {
+        if !bestFrame.IsBetterGateway(frame.MacFrame) {
+            gw := models.FindGatewayById(uint32(bestFrame.GatewayID))
+            if gw != nil && gw.TxAvailableAt.Before(time.Now()) {
+                bestFrame = frame.MacFrame
+            }
+        }
+    }
+    bestGateway := models.FindGatewayById(uint32(bestFrame.GatewayID))
+    if bestGateway == nil || bestGateway.TxAvailableAt.After(time.Now()) {
+		log.Print("There are no gateways in off duty cycle")
+		return
+    }
 
 	joinNonce := endDevice.JoinNonce + 1
 
@@ -175,6 +191,15 @@ func joinAcceptHandler(i_endDevice models.EndDevice) {
 	token.Wait()
 	logMsg := fmt.Sprintf("Publish to topic %s", topic)
 	log.Println(logMsg)
+
+    // Use hardcode setting for now
+    timeOnAir, err := airtime.CalculateLoRaAirtime(len(bytes), 11, 125, 8, airtime.CodingRate45, true, false)
+    if err != nil {
+        bestGateway.TxAvailableAt = time.Now().Add(time.Minute)
+    } else {
+        bestGateway.TxAvailableAt = time.Now().Add(timeOnAir * 90)
+    }
+    bestGateway.Save()
 
 	mic, _ := phy.MIC.MarshalText()
 	jaFrame.MacFrame.Mic = mic

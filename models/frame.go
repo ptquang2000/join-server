@@ -31,6 +31,16 @@ type MacFrame struct {
 	GatewayID uint
 }
 
+func FindMacPayloadByMic(mic []byte) (frames []*MacPayload) {
+    db.Where("mic = ?", mic).Find(&frames)
+    return
+}
+
+func FindJoinRequestsByMic(mic []byte) (frames []*JoinRequest) {
+    db.Where("mic = ?", mic).Find(&frames)
+    return
+}
+
 func ReadLimitFrames(limit int) (frames []MacFrame) {
 	field := "created_at, frame_type, major, mic, rssi, snr, gateway_id"
 	raw := fmt.Sprintf("? UNION ALL ? ORDER BY created_at DESC LIMIT %d", limit)

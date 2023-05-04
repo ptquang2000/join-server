@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/brocaar/lorawan"
-	"github.com/brocaar/lorawan/airtime"
 	"github.com/ptquang2000/lorawan-server/models"
 )
 
@@ -74,12 +73,6 @@ func uplinkHandler(msg []byte) {
 		FCnt:    uint16(macPL.FHDR.FCnt),
 		FPort:   *macPL.FPort,
 	}
-
-    existedFrames := models.FindMacPayloadByMic(mic)
-    if len(existedFrames) > 0 {
-        macFrame.Create()
-		return
-    }
 	macFrame.Create()
 
 	if endDevice.FCntUp != uint16(macPL.FHDR.FCnt) {
@@ -126,13 +119,13 @@ func downlinkHandler(endDevice models.EndDevice) {
 	bestFrame := frames[0].MacFrame
 	for _, frame := range frames[1:] {
 		if !bestFrame.IsBetterGateway(frame.MacFrame) {
-            gw := models.FindGatewayById(uint32(bestFrame.GatewayID))
+            gw := models.FindGatewayById(uint32(bestFrame.ID))
             if gw != nil && gw.TxAvailableAt.Before(time.Now()) {
                 bestFrame = frame.MacFrame
             }
 		}
 	}
-    bestGateway := models.FindGatewayById(uint32(bestFrame.GatewayID))
+    bestGateway := models.FindGatewayById(uint32(bestFrame.ID))
     if bestGateway == nil || bestGateway.TxAvailableAt.After(time.Now()) {
 		log.Print("There are no gateways in off duty cycle")
 		return
@@ -202,7 +195,6 @@ func downlinkHandler(endDevice models.EndDevice) {
     } else {
         bestGateway.TxAvailableAt = time.Now().Add(timeOnAir * 90)
     }
-    bestGateway.Save()
 
 	mic, _ := phy.MIC.MarshalText()
 	unDlFrame.MacFrame.Mic = mic

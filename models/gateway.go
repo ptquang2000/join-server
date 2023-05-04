@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -48,6 +49,7 @@ type Gateway struct {
 	Password_hash string `gorm:"type:varchar(100);default:null" json:"Password"`
 	Salt          string `gorm:"type:varchar(35);default:null"`
 	Is_superuser  bool   `gorm:"default:0"`
+    TxAvailableAt time.Time 
 
 	GatewayAcls []GatewayAcl `gorm:"foreignKey:Username;references:Username"`
 }
@@ -109,6 +111,12 @@ func DeleteGatewayById(id uint32) (tx *gorm.DB) {
 	return
 }
 
+
+func (gateway *Gateway) Save() (tx *gorm.DB){
+    tx = db.Save(&gateway)
+    return
+}
+
 func (gateway *Gateway) Create() (tx *gorm.DB) {
 	hash := sha256.New()
 	hash.Write([]byte(gateway.Password_hash + gateway.Salt))
@@ -141,6 +149,7 @@ func (gateway *Gateway) Create() (tx *gorm.DB) {
 			Topic:      fmt.Sprintf("frames/downlink/%s", gateway.Username),
 		},
 	}
+    gateway.TxAvailableAt = time.Now()
 
 	tx = db.Create(&gateway)
 	return
