@@ -113,21 +113,19 @@ func joinAcceptHandler(i_endDevice models.EndDevice) {
 	}
 	endDevice.DevNonce = i_endDevice.DevNonce
 
-    frames, _ := models.FindJoinRequestByDevEuiAndDevNonce(endDevice.DevEui, endDevice.DevNonce)
+    frames, _ := models.FindJoinRequestByDevAddrAndFCntAndTxAvailable(endDevice.DevEui, endDevice.DevNonce)
+    if len(frames) == 0 {
+        log.Print("There are no gateways in off duty cycle")
+        return
+    }
+
     bestFrame := frames[0].MacFrame
     for _, frame := range frames[1:] {
         if !bestFrame.IsBetterGateway(frame.MacFrame) {
-            gw := models.FindGatewayById(uint32(bestFrame.GatewayID))
-            if gw != nil && gw.TxAvailableAt.Before(time.Now()) {
-                bestFrame = frame.MacFrame
-            }
+            bestFrame = frame.MacFrame
         }
     }
     bestGateway := models.FindGatewayById(uint32(bestFrame.GatewayID))
-    if bestGateway == nil || bestGateway.TxAvailableAt.After(time.Now()) {
-		log.Print("There are no gateways in off duty cycle")
-		return
-    }
 
 	joinNonce := endDevice.JoinNonce + 1
 

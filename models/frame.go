@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -101,6 +102,18 @@ func FindJoinRequestByDevEuiAndDevNonce(devEui uint64, devNonce uint16) (frames 
 	return
 }
 
+func FindJoinRequestByDevAddrAndFCntAndTxAvailable(devEui uint64, devNonce uint16) (frames []*JoinRequest, tx *gorm.DB) {
+    var foundFrames []*JoinRequest
+	tx = db.Where("dev_eui = ? and dev_nonce = ?", devEui, devNonce).Find(&frames)
+    for _, frame := range foundFrames {
+        gateway := FindGatewayById(uint32(frame.GatewayID))
+        if gateway.TxAvailableAt.Before(time.Now()) {
+            frames = append(frames, frame)
+        }
+    }
+	return
+}
+
 func (frame JoinRequest) Save() (tx *gorm.DB) {
 	tx = db.Save(&frame)
 	return
@@ -159,5 +172,17 @@ func (frame MacPayload) Save() (tx *gorm.DB) {
 
 func FindMacFrameByDevAddrAndFCnt(devAddr uint32, fCnt uint16) (frames []MacPayload, tx *gorm.DB) {
 	tx = db.Where("dev_addr = ? and f_cnt = ?", devAddr, fCnt).Find(&frames)
+	return
+}
+
+func FindMacFrameByDevAddrAndFCntAndTxAvailable(devAddr uint32, fCnt uint16) (frames []*MacPayload, tx *gorm.DB) {
+    var foundFrames []*MacPayload
+	tx = db.Where("dev_addr = ? and f_cnt = ?", devAddr, fCnt).Find(&foundFrames)
+    for _, frame := range foundFrames {
+        gateway := FindGatewayById(uint32(frame.GatewayID))
+        if gateway.TxAvailableAt.Before(time.Now()) {
+            frames = append(frames, frame)
+        }
+    }
 	return
 }
