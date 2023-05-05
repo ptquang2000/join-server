@@ -5,18 +5,86 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/airtime"
+	"github.com/joho/godotenv"
 	"github.com/ptquang2000/lorawan-server/models"
 )
+
+type ServerConfiguration struct{
+    disableDutyCycle   bool
+	mqttUsername       string
+	mqttPassword       string
+	mqttBroker         string
+	mqttPort           int
+	deDuplicationDelay int
+	joinRequestTopic   string
+	uplinkTopic        string
+}
+
+var serverConf ServerConfiguration
+
+func init() {
+    var conf map[string]string
+    conf, err := godotenv.Read(".conf") 
+    if err != nil {
+        log.Fatal("Could not find configuration file")
+    }
+
+    if disable_duty_cycle, ok := conf["disable_duty_cycle"]; ok {
+        serverConf.disableDutyCycle = disable_duty_cycle == "true"
+    } else {
+        serverConf.disableDutyCycle = false
+    }
+    if deDuplicationDelay, ok := conf["deduplication_delay"]; ok {
+        if serverConf.deDuplicationDelay, err =  strconv.Atoi(deDuplicationDelay); err != nil {
+            log.Fatal("Conf deduplication delay is in wrong format")
+        }
+    } else {
+        serverConf.deDuplicationDelay = 200 
+    }
+    if username, ok := conf["mqtt_username"]; ok {
+        serverConf.mqttUsername = username
+    } else {
+        log.Fatal("Require mqtt username in .conf file")
+    }
+    if password, ok := conf["mqtt_password"]; ok {
+        serverConf.mqttPassword = password
+    } else {
+        log.Fatal("Require mqtt password in .conf file")
+    }
+    if mqttBroker, ok := conf["mqtt_broker_url"]; ok {
+        serverConf.mqttBroker = mqttBroker
+    } else {
+        log.Fatal("Require mqtt broker url in .conf file")
+    }
+    if mqtt_port, ok := conf["mqtt_port"]; ok {
+        if serverConf.mqttPort, err =  strconv.Atoi(mqtt_port); err != nil {
+            log.Fatal("Conf mqtt port is in wrong format")
+        }
+    } else {
+        serverConf.mqttPort = 1883
+    }
+    if joinRequestTopic, ok := conf["join_request_topic"]; ok {
+        serverConf.joinRequestTopic = joinRequestTopic
+    } else {
+        log.Fatal("Require join request topic in .conf file")
+    }
+    if uplinkTopic, ok := conf["uplink_topic"]; ok {
+        serverConf.uplinkTopic = uplinkTopic
+    } else {
+        log.Fatal("Require uplink topic in .conf file")
+    }
+}
 
 func uplinkHandler(msg []byte) {
 	var data models.GatewayMetaData
 
 	if err := json.Unmarshal([]byte(msg), &data); err != nil {
-		logMsg := fmt.Sprintf("Invalid message format for topic %s", joinRequestTopic)
+		logMsg := fmt.Sprintf("Invalid message format for topic %s", serverConf.joinRequestTopic)
 		log.Print(logMsg)
 		return
 	}
@@ -122,7 +190,7 @@ func downlinkHandler(endDevice models.EndDevice) {
 	devAddr := make([]byte, 4)
 	binary.BigEndian.PutUint32(devAddr, endDevice.DevAddr)
 
-    frames, _ := models.FindMacFrameByDevAddrAndFCntAndTxAvailable(endDevice.DevAddr, endDevice.FCntUp-1)
+    frames, _ := models.FindMacFrameByDevAddrAndFCntAndTxAvailable(endDevice.DevAddr, endDevice.FCntUp - 1, serverConf.disableDutyCycle)
     if len(frames) == 0 {
         log.Print("There are no gateways in off duty cycle")
         return

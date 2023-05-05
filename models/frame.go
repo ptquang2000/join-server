@@ -19,8 +19,6 @@ const (
 	CONFIRMED_DATA_DOWNLINK   FrameType = 5
 	REJOIN_REQUEST            FrameType = 6
 	PROPRIETARY               FrameType = 7
-
-    DISABLE_DUTY_CYCLE        bool = true 
 )
 
 type MacFrame struct {
@@ -104,11 +102,11 @@ func FindJoinRequestByDevEuiAndDevNonce(devEui uint64, devNonce uint16) (frames 
 	return
 }
 
-func FindJoinRequestByDevAddrAndFCntAndTxAvailable(devEui uint64, devNonce uint16) (frames []*JoinRequest, tx *gorm.DB) {
+func FindJoinRequestByDevAddrAndFCntAndTxAvailable(devEui uint64, devNonce uint16, disable_duty_cycle bool) (frames []*JoinRequest, tx *gorm.DB) {
     var foundFrames []*JoinRequest
 	tx = db.Where("dev_eui = ? and dev_nonce = ?", devEui, devNonce).Find(&frames)
 
-    if DISABLE_DUTY_CYCLE {
+    if disable_duty_cycle {
         frames = append(frames, foundFrames...)
     }
 
@@ -182,11 +180,11 @@ func FindMacFrameByDevAddrAndFCnt(devAddr uint32, fCnt uint16) (frames []MacPayl
 	return
 }
 
-func FindMacFrameByDevAddrAndFCntAndTxAvailable(devAddr uint32, fCnt uint16) (frames []*MacPayload, tx *gorm.DB) {
+func FindMacFrameByDevAddrAndFCntAndTxAvailable(devAddr uint32, fCnt uint16, disable_duty_cycle bool) (frames []*MacPayload, tx *gorm.DB) {
     var foundFrames []*MacPayload
 	tx = db.Where("dev_addr = ? and f_cnt = ?", devAddr, fCnt).Find(&foundFrames)
 
-    if DISABLE_DUTY_CYCLE {
+    if disable_duty_cycle {
         frames = append(frames, foundFrames...)
     }
 

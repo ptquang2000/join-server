@@ -11,24 +11,14 @@ import (
 
 var client mqtt.Client
 
-const (
-	username           = "joinserver1"
-	password           = "123456?aD"
-	broker             = "localhost"
-	port               = 1883
-	deDuplicationDelay = 2000
-	joinRequestTopic   = "frames/joinrequest"
-	uplinkTopic        = "frames/uplink"
-)
-
 var joinAcceptChannel = make(chan models.EndDevice)
 var downlinkChannel = make(chan models.EndDevice)
 
 var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	switch topic := msg.Topic(); topic {
-	case joinRequestTopic:
+	case serverConf.joinRequestTopic:
 		joinRequestHandler(msg.Payload())
-	case uplinkTopic:
+	case serverConf.uplinkTopic:
 		uplinkHandler(msg.Payload())
 	default:
 		panic("Topic is not expected")
@@ -48,10 +38,10 @@ func StartJoinServer() {
 	wg.Add(1)
 
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
-	opts.SetClientID(username)
-	opts.SetUsername(username)
-	opts.SetPassword(password)
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", serverConf.mqttBroker, serverConf.mqttPort))
+	opts.SetClientID(serverConf.mqttUsername)
+	opts.SetUsername(serverConf.mqttUsername)
+	opts.SetPassword(serverConf.mqttPassword)
 	opts.SetDefaultPublishHandler(messagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
@@ -61,8 +51,8 @@ func StartJoinServer() {
 	}
 
 	topics := map[string]byte{
-		joinRequestTopic: 1,
-		uplinkTopic:      1,
+		serverConf.joinRequestTopic: 1,
+		serverConf.uplinkTopic:      1,
 	}
 	token := client.SubscribeMultiple(topics, nil)
 	token.Wait()

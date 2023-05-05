@@ -18,7 +18,7 @@ func joinRequestHandler(msg []byte) {
 	var data models.GatewayMetaData
 
 	if err := json.Unmarshal([]byte(msg), &data); err != nil {
-		logMsg := fmt.Sprintf("Invalid message format for topic %s", joinRequestTopic)
+		logMsg := fmt.Sprintf("Invalid message format for topic %s", serverConf.joinRequestTopic)
 		log.Print(logMsg)
 		return
 	}
@@ -113,7 +113,7 @@ func joinAcceptHandler(i_endDevice models.EndDevice) {
 	}
 	endDevice.DevNonce = i_endDevice.DevNonce
 
-    frames, _ := models.FindJoinRequestByDevAddrAndFCntAndTxAvailable(endDevice.DevEui, endDevice.DevNonce)
+    frames, _ := models.FindJoinRequestByDevAddrAndFCntAndTxAvailable(endDevice.DevEui, endDevice.DevNonce, serverConf.disableDutyCycle)
     if len(frames) == 0 {
         log.Print("There are no gateways in off duty cycle")
         return
