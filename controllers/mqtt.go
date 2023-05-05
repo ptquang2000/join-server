@@ -60,7 +60,7 @@ func StartJoinServer() {
 	go func() {
 		for endDevice := range joinAcceptChannel {
 			go func(endDevice *models.EndDevice) {
-				time.Sleep(time.Millisecond * 3000)
+				time.Sleep(serverConf.joinAcceptDelay + serverConf.deDuplicationDelay)
 				joinAcceptHandler(*endDevice)
 			}(&endDevice)
 		}
@@ -69,7 +69,7 @@ func StartJoinServer() {
 	go func() {
 		for endDevice := range downlinkChannel {
 			go func(endDevice *models.EndDevice) {
-				time.Sleep(time.Millisecond * 1000)
+				time.Sleep(serverConf.receiveDelay + serverConf.deDuplicationDelay)
 				downlinkHandler(*endDevice)
 			}(&endDevice)
 		}

@@ -20,9 +20,11 @@ type ServerConfiguration struct{
 	mqttPassword       string
 	mqttBroker         string
 	mqttPort           int
-	deDuplicationDelay int
+	deDuplicationDelay time.Duration
 	joinRequestTopic   string
 	uplinkTopic        string
+    receiveDelay       time.Duration
+    joinAcceptDelay    time.Duration
 }
 
 var serverConf ServerConfiguration
@@ -39,12 +41,14 @@ func init() {
     } else {
         serverConf.disableDutyCycle = false
     }
-    if deDuplicationDelay, ok := conf["deduplication_delay"]; ok {
-        if serverConf.deDuplicationDelay, err =  strconv.Atoi(deDuplicationDelay); err != nil {
+    if deduplicationDelay, ok := conf["deduplication_delay"]; ok {
+        var intDeduplicatinoDelay int
+        if intDeduplicatinoDelay, err =  strconv.Atoi(deduplicationDelay); err != nil {
             log.Fatal("Conf deduplication delay is in wrong format")
         }
+        serverConf.deDuplicationDelay = time.Microsecond * time.Duration(intDeduplicatinoDelay)
     } else {
-        serverConf.deDuplicationDelay = 200 
+        serverConf.deDuplicationDelay = time.Microsecond * 200 
     }
     if username, ok := conf["mqtt_username"]; ok {
         serverConf.mqttUsername = username
@@ -62,7 +66,7 @@ func init() {
         log.Fatal("Require mqtt broker url in .conf file")
     }
     if mqtt_port, ok := conf["mqtt_port"]; ok {
-        if serverConf.mqttPort, err =  strconv.Atoi(mqtt_port); err != nil {
+        if serverConf.mqttPort, err = strconv.Atoi(mqtt_port); err != nil {
             log.Fatal("Conf mqtt port is in wrong format")
         }
     } else {
@@ -77,6 +81,30 @@ func init() {
         serverConf.uplinkTopic = uplinkTopic
     } else {
         log.Fatal("Require uplink topic in .conf file")
+    }
+    if receiveDelay, ok := conf["receive_delay_duration"]; ok {
+        var intReceiveDelay int
+        if intReceiveDelay, err = strconv.Atoi(receiveDelay); err != nil {
+            log.Fatal("Conf receive delay is in wrong format")
+        }
+        if intReceiveDelay != 1 && intReceiveDelay != 2 {
+            log.Fatal("Conf receive delay must be 1 or 2")
+        }
+        serverConf.receiveDelay = time.Second * time.Duration(intReceiveDelay)
+    } else {
+        serverConf.receiveDelay = time.Second * 2
+    }
+    if joinAcceptDelay, ok := conf["join_accept_delay_duration"]; ok {
+        var intJoinAcceptDelay int
+        if intJoinAcceptDelay, err = strconv.Atoi(joinAcceptDelay); err != nil {
+            log.Fatal("Conf join accept delay is in wrong format")
+        }
+        if intJoinAcceptDelay!= 5 && intJoinAcceptDelay != 6 {
+            log.Fatal("Conf join accept delay must be 5 or 6")
+        }
+        serverConf.joinAcceptDelay = time.Second * time.Duration(intJoinAcceptDelay)
+    } else {
+        serverConf.joinAcceptDelay = time.Second * 6
     }
 }
 
