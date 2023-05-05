@@ -69,3 +69,4 @@ VALUES ('joinserver1', 'joinserver1', 'subscribe', 'allow', '#');
 -- SELECT * FROM `lorawan`.`gateway_acls` LIMIT 1000;
 
 -- UPDATE `lorawan`.`end_devices` SET `dev_nonce` = 0, `join_nonce` = 0 WHERE `id` = 1 OR `id` = 2
+-- delete from join_accepts; delete from join_requests; delete from mac_payloads; UPDATE end_devices SET dev_nonce = 0, join_nonce = 0 WHERE id = 1 OR id = 2; 

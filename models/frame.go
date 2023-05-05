@@ -19,6 +19,8 @@ const (
 	CONFIRMED_DATA_DOWNLINK   FrameType = 5
 	REJOIN_REQUEST            FrameType = 6
 	PROPRIETARY               FrameType = 7
+
+    DISABLE_DUTY_CYCLE        bool = true 
 )
 
 type MacFrame struct {
@@ -105,6 +107,11 @@ func FindJoinRequestByDevEuiAndDevNonce(devEui uint64, devNonce uint16) (frames 
 func FindJoinRequestByDevAddrAndFCntAndTxAvailable(devEui uint64, devNonce uint16) (frames []*JoinRequest, tx *gorm.DB) {
     var foundFrames []*JoinRequest
 	tx = db.Where("dev_eui = ? and dev_nonce = ?", devEui, devNonce).Find(&frames)
+
+    if DISABLE_DUTY_CYCLE {
+        frames = append(frames, foundFrames...)
+    }
+
     for _, frame := range foundFrames {
         gateway := FindGatewayById(uint32(frame.GatewayID))
         if gateway.TxAvailableAt.Before(time.Now()) {
@@ -178,6 +185,11 @@ func FindMacFrameByDevAddrAndFCnt(devAddr uint32, fCnt uint16) (frames []MacPayl
 func FindMacFrameByDevAddrAndFCntAndTxAvailable(devAddr uint32, fCnt uint16) (frames []*MacPayload, tx *gorm.DB) {
     var foundFrames []*MacPayload
 	tx = db.Where("dev_addr = ? and f_cnt = ?", devAddr, fCnt).Find(&foundFrames)
+
+    if DISABLE_DUTY_CYCLE {
+        frames = append(frames, foundFrames...)
+    }
+
     for _, frame := range foundFrames {
         gateway := FindGatewayById(uint32(frame.GatewayID))
         if gateway.TxAvailableAt.Before(time.Now()) {
