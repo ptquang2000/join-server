@@ -137,7 +137,7 @@ const Containers = ({ path, type }) => {
     }, [successReq])
 
     return (
-        <main className="container-fluid p-3" style={{backgroundColor:"var(--bs-info-border-subtle)"}}>
+        <main className="flex-fill p-3" style={{backgroundColor:"var(--bs-info-border-subtle)"}}>
             {
                 page == true
                 ?
@@ -202,8 +202,8 @@ class App extends React.Component {
 
     render() {
         return (
-            <div className="container-sm position-absolute top-50 start-50 translate-middle border border-light-subtle rounded p-0">
-                <div className="container-sm d-flex flex-row p-0">
+            <div className="border border-light-subtle rounded p-0">
+                <div className="vh-100 d-flex flex-row">
                     <Navbars onTabChanged={this.onTabChanged}/>
                     <Containers path={this.state.path} type={this.state.dataType}/>
                 </div>

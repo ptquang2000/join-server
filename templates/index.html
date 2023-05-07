@@ -28,13 +28,17 @@
     body {
         font-family: 'Roboto Mono', sans-serif;
     }
+    body > #root > div {
+        height: 100vh;
+    }
     </style>
     <title>Dashboard</title>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="root">
+        <div id="app"></div>
+    </div>
     
-    Date: {[{.now | formatAsDate}]}
     <script type="text/babel" src="/static/utils.js"></script>
     <script type="text/babel" src="/static/navbar.js"></script>
     <script type="text/babel" src="/static/form.js"></script>

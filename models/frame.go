@@ -43,11 +43,13 @@ func FindJoinRequestsByMic(mic []byte) (frames []*JoinRequest) {
 }
 
 func ReadLimitFrames(limit int) (frames []MacFrame) {
+    frames = []MacFrame{}
 	field := "created_at, frame_type, major, mic, rssi, snr, gateway_id"
-	raw := fmt.Sprintf("? UNION ALL ? ORDER BY created_at DESC LIMIT %d", limit)
+	raw := fmt.Sprintf("? UNION ALL ? UNION ALL ? ORDER BY created_at DESC LIMIT %d", limit)
 	db.Raw(raw,
 		db.Select(field).Model(&JoinRequest{}),
-		db.Select(field).Model(&JoinAccept{})).
+		db.Select(field).Model(&JoinAccept{}),
+		db.Select(field).Model(&MacPayload{})).
 		Scan(&frames)
 	return
 }
