@@ -202,7 +202,13 @@ func uplinkHandler(msg []byte) {
 			log.Println("*FRMPayload must be DataPayload")
 			return
 		}
-		logMsg := fmt.Sprintf("Payload from %d: %s", endDevice.DevEui, string(pl.Bytes))
+		logMsg := fmt.Sprintf("Payload from %d with fport %d: %s (\"%s\")", endDevice.DevEui, *macPL.FPort, pl.Bytes,string(pl.Bytes))
+		log.Println(logMsg)
+
+        topic := fmt.Sprintf("%d/fport/%d", endDevice.DevEui, *macPL.FPort)
+        token := client.Publish(topic, 0, true, pl.Bytes)
+        token.Wait()
+        logMsg = fmt.Sprintf("Publish data to topic %s", topic)
 		log.Println(logMsg)
 	}
 
