@@ -146,3 +146,17 @@ const generateHtmlEntity = (num, code, ref = []) => {
 BigInt.prototype.toJSON = function () {
     return this.toString();
 }
+
+const GetFrameType = (type) => {
+    const frames = [
+        "JoinRequest",
+        "JoinAccept",
+        "UnconfirmedDataUp",
+        "UnconfirmedDataDown",
+        "ConfirmedDataUp",
+        "ConfirmedDataDown",
+        "RejoinRequest",
+        "Proprietary",
+    ]
+    return frames[type]
+}

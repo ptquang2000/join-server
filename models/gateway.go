@@ -42,6 +42,26 @@ type GatewayAcl struct {
 	Topic      string         `gorm:"type:varchar(255);not null;default:'';"`
 }
 
+type GatewayActivity struct {
+	gorm.Model
+
+	GatewayID uint
+	FType     FrameType
+	Rssi      int8
+	Snr       int16
+}
+
+func (activity *GatewayActivity) Save() (tx *gorm.DB) {
+	tx = db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&activity)
+	return
+}
+
+func GetGatewayActivities(id uint64) (activities []GatewayActivity) {
+	activities = []GatewayActivity{}
+	db.Where("gateway_id = ?", id).Order("created_at desc").Limit(10).Find(&activities)
+	return
+}
+
 type Gateway struct {
 	gorm.Model
 
@@ -49,7 +69,7 @@ type Gateway struct {
 	Password_hash string `gorm:"type:varchar(100);default:null" json:"Password"`
 	Salt          string `gorm:"type:varchar(35);default:null"`
 	Is_superuser  bool   `gorm:"default:0"`
-    TxAvailableAt time.Time 
+	TxAvailableAt time.Time
 
 	GatewayAcls []GatewayAcl `gorm:"foreignKey:Username;references:Username"`
 }
@@ -111,10 +131,9 @@ func DeleteGatewayById(id uint32) (tx *gorm.DB) {
 	return
 }
 
-
-func (gateway *Gateway) Save() (tx *gorm.DB){
-    tx = db.Save(&gateway)
-    return
+func (gateway *Gateway) Save() (tx *gorm.DB) {
+	tx = db.Save(&gateway)
+	return
 }
 
 func (gateway *Gateway) Create() (tx *gorm.DB) {
@@ -149,7 +168,7 @@ func (gateway *Gateway) Create() (tx *gorm.DB) {
 			Topic:      fmt.Sprintf("frames/downlink/%s", gateway.Username),
 		},
 	}
-    gateway.TxAvailableAt = time.Now()
+	gateway.TxAvailableAt = time.Now()
 
 	tx = db.Create(&gateway)
 	return

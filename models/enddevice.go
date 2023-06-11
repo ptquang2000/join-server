@@ -32,6 +32,25 @@ type EndDevice struct {
 	NwkSKey lorawan.AES128Key `gorm:"-:all"`
 }
 
+type EndDeviceActivity struct {
+	gorm.Model
+
+	EndDeviceID uint
+	FType       FrameType
+	Payload     []byte
+}
+
+func (activity *EndDeviceActivity) Save() (tx *gorm.DB) {
+	tx = db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&activity)
+	return
+}
+
+func GetEndDeviceActivities(id uint64) (activities []EndDeviceActivity) {
+	activities = []EndDeviceActivity{}
+	db.Where("end_device_id = ?", id).Order("created_at desc").Limit(10).Find(&activities)
+	return
+}
+
 func GenerateAppkey() (appkey []byte) {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)

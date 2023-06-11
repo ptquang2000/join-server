@@ -41,16 +41,16 @@ func testJoin(devices []*FakeEndDevice, gateways map[string]*FakeGateway) {
 		}
 	}()
 
-	go func() {
-		for i := start; i < end; i++ {
-			devices[1].JaWait.Add(1)
+	// go func() {
+	// 	for i := start; i < end; i++ {
+	// 		devices[1].JaWait.Add(1)
 
-			devices[1].devNonce += 1
-			devices[1].sendJr(gateways["gateway2"])
+	// 		devices[1].devNonce += 1
+	// 		devices[1].sendJr(gateways["gateway2"])
 
-			devices[1].JaWait.Wait()
-		}
-	}()
+	// 		devices[1].JaWait.Wait()
+	// 	}
+	// }()
 }
 
 func testUnconfirmedUl(devices []*FakeEndDevice, gateways map[string]*FakeGateway) {

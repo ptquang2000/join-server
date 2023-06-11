@@ -57,6 +57,22 @@ const DeleteButton = ({deviceId, path, doRefresh}) => {
     )
 }
 
+const LiveDataButton = ({deviceId, uniqueId, path, setLiveDataInfo}) => {
+    const onClicked = () => {
+        let liveDataInfo = path + "/" + deviceId
+        setLiveDataInfo({path: liveDataInfo, uniqueId: uniqueId})
+    }
+
+    return (
+        <>
+        <button 
+        className="btn btn-link p-1" 
+        onClick={onClicked} 
+        ><ThreeVerticalDots/></button>
+        </>
+    )
+}
+
 const FrameTable = ({ path, showOptions, setOptions, refreshTable }) => {
     const [defaultOptions] = React.useState(["Type", "RSSI", "SNR", "Mic", "Gateway ID"])
     const [data, setData] = React.useState([])
@@ -82,29 +98,14 @@ const FrameTable = ({ path, showOptions, setOptions, refreshTable }) => {
         getData()
     }, [refreshTable])
 
-    const getFrameType = (type) => {
-        const frames = [
-            "JoinRequest",
-            "JoinAccept",
-            "UnconfirmedDataUp",
-            "UnconfirmedDataDown",
-            "ConfirmedDataUp",
-            "ConfirmedDataDown",
-            "RejoinRequest",
-            "Proprietary",
-        ]
-        return frames[type]
-    }
-
     const frames  = data.map((frame, index) => { return (
         <tr>
             <th scope="row">{index + 1}</th>
-            {showOptions['Type'] ? <td>{getFrameType(frame.FrameType)}</td> : null}
+            {showOptions['Type'] ? <td>{GetFrameType(frame.FrameType)}</td> : null}
             {showOptions['RSSI'] ? <td>{frame.Rssi}</td> : null}
             {showOptions['SNR'] ? <td>{frame.Snr}</td> : null}
             {showOptions['Mic'] ? <th scope="col">{frame.Mic}</th> : null}
             {showOptions['Gateway ID'] ? <th scope="col">{frame.GatewayID}</th> : null}
-            <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
         </tr>
     )})
 
@@ -118,7 +119,6 @@ const FrameTable = ({ path, showOptions, setOptions, refreshTable }) => {
                 {showOptions['SNR'] ? <th scope="col">SNR</th> : null}
                 {showOptions['Mic'] ? <th scope="col">Mic</th> : null}
                 {showOptions['Gateway ID'] ? <th scope="col">Gateway ID</th> : null}
-                <th scope="col">Actions</th>
                 </tr>
             </thead>
             <tbody>{ frames }</tbody>
@@ -141,7 +141,7 @@ const ByteBlocks = ({ size, value }) => {
     )
 }
 
-const EndDeviceTable = ({ path, showOptions, setOptions }) => {
+const EndDeviceTable = ({ path, showOptions, setOptions, setLiveDataInfo }) => {
     const [defaultOptions] = React.useState(["Appkey", "DevEui", "JoinEui", "DevAddr"])
     const [data, setData] = React.useState([])
     const [refreshData, setRefreshData] = React.useState(true)
@@ -169,7 +169,7 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
             {showOptions['DevEui'] ? <td><ByteBlocks value={BigInt(device.DevEui)} size={8}/></td> : null}
             {showOptions['JoinEui'] ? <td><ByteBlocks value={BigInt(device.JoinEui)} size={8}/></td> : null}
             {showOptions['DevAddr'] ? <td><ByteBlocks value={BigInt(device.DevAddr)} size={4}/></td> : null}
-            <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
+            <td><LiveDataButton deviceId={device.ID} uniqueId={BigInt(device.DevEui)} path={path} setLiveDataInfo={setLiveDataInfo}/></td>
             <td><DeleteButton deviceId={device.ID} path={path} doRefresh={setRefreshData}/></td>
         </tr>
     )})
@@ -184,7 +184,7 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
                 {showOptions['DevEui'] ? <th scope="col">DevEUI</th> : null}
                 {showOptions['JoinEui'] ? <th scope="col">JoinEui</th> : null}
                 {showOptions['DevAddr'] ? <th scope="col">DevAddr</th> : null}
-                <th scope="col">Actions</th>
+                <th scope="col">Live Data</th>
                 <th scope="col"></th>
                 </tr>
             </thead>
@@ -193,7 +193,7 @@ const EndDeviceTable = ({ path, showOptions, setOptions }) => {
     )
 }
 
-const GatewayTable = ({ path, showOptions, setOptions }) => {
+const GatewayTable = ({ path, showOptions, setOptions, setLiveDataInfo }) => {
 
     const [defaultOptions] = React.useState(["Admin", 'Created Date'])
     const [data, setData] = React.useState([])
@@ -220,7 +220,7 @@ const GatewayTable = ({ path, showOptions, setOptions }) => {
             </td> 
             : null}
             {showOptions['Created Date'] ? <td>{gateway.CreatedAt}</td> : null}
-            <td><button className="btn btn-link p-1"><ThreeVerticalDots/></button></td>
+            <td><LiveDataButton deviceId={gateway.ID} uniqueId={gateway.ID} path={path} setLiveDataInfo={setLiveDataInfo}/></td>
             <td><DeleteButton deviceId={gateway.ID} path={path} doRefresh={setRefreshData}/></td>
         </tr>
     )})
@@ -233,7 +233,7 @@ const GatewayTable = ({ path, showOptions, setOptions }) => {
                 <th scope="col">Station</th>
                 {showOptions['Admin'] ? <th scope="col">Admin</th> : null}
                 {showOptions['Created Date'] ? <th scope="col">Created Date</th> : null}
-                <th scope="col">Actions</th>
+                <th scope="col">Live Data</th>
                 <th scope="col"></th>
                 </tr>
             </thead>

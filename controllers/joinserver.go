@@ -30,6 +30,25 @@ func joinRequestHandler(msg []byte) {
 		return
 	}
 
+	gatewayActivities := models.GatewayActivity{
+		GatewayID: gateway.ID,
+		FType:     models.JOIN_REQUEST,
+		Rssi:      data.Rssi,
+		Snr:       data.Snr,
+	}
+	gatewayActivities.Save()
+
+	gwliveData := GatewayLiveData{
+		ID:    uint64(gatewayActivities.GatewayID),
+		FType: gatewayActivities.FType,
+		Time:  gatewayActivities.CreatedAt,
+		Rssi:  gatewayActivities.Rssi,
+		Snr:   gatewayActivities.Snr,
+	}
+	if dataChan, required := gwLiveDataChans[uint64(gatewayActivities.GatewayID)]; required {
+		dataChan <- gwliveData
+	}
+
 	var phy lorawan.PHYPayload
 	if err := phy.UnmarshalBinary(data.Frame); err != nil {
 		logMsg := fmt.Sprintf("Error %s\n", err)
@@ -85,12 +104,30 @@ func joinRequestHandler(msg []byte) {
 		DevNonce: uint16(jrPL.DevNonce),
 	}
 
-    existedFrames := models.FindJoinRequestsByMic(mic)
-    if len(existedFrames) > 0 {
-        jrFrame.Create()
+	existedFrames := models.FindJoinRequestsByMic(mic)
+	if len(existedFrames) > 0 {
+		jrFrame.Create()
 		return
-    }
-    jrFrame.Create()
+	}
+	jrFrame.Create()
+
+	endDeviceActivities := models.EndDeviceActivity{
+		EndDeviceID: endDevice.ID,
+		FType:       models.JOIN_REQUEST,
+		Payload:     []byte{},
+	}
+	endDeviceActivities.Save()
+	liveData := EndDeviceLiveData{
+		ID:      uint64(endDeviceActivities.EndDeviceID),
+		FType:   endDeviceActivities.FType,
+		Time:    endDeviceActivities.CreatedAt,
+		Payload: endDeviceActivities.Payload,
+	}
+	if dataChan, required := edLiveDataChans[uint64(endDevice.ID)]; required {
+		dataChan <- liveData
+	}
+
+	fmt.Println(endDevice.DevEui, endDevice.DevNonce, devNonce)
 
 	if endDevice.DevNonce < devNonce {
 		endDevice.DevNonce = devNonce
@@ -113,19 +150,19 @@ func joinAcceptHandler(i_endDevice models.EndDevice) {
 	}
 	endDevice.DevNonce = i_endDevice.DevNonce
 
-    frames, _ := models.FindJoinRequestByDevAddrAndFCntAndTxAvailable(endDevice.DevEui, endDevice.DevNonce, serverConf.disableDutyCycle)
-    if len(frames) == 0 {
-        log.Print("There are no gateways in off duty cycle")
-        return
-    }
+	frames, _ := models.FindJoinRequestByDevAddrAndFCntAndTxAvailable(endDevice.DevEui, endDevice.DevNonce, serverConf.disableDutyCycle)
+	if len(frames) == 0 {
+		log.Print("There are no gateways in off duty cycle")
+		return
+	}
 
-    bestFrame := frames[0].MacFrame
-    for _, frame := range frames[1:] {
-        if !bestFrame.IsBetterGateway(frame.MacFrame) {
-            bestFrame = frame.MacFrame
-        }
-    }
-    bestGateway := models.FindGatewayById(uint32(bestFrame.GatewayID))
+	bestFrame := frames[0].MacFrame
+	for _, frame := range frames[1:] {
+		if !bestFrame.IsBetterGateway(frame.MacFrame) {
+			bestFrame = frame.MacFrame
+		}
+	}
+	bestGateway := models.FindGatewayById(uint32(bestFrame.GatewayID))
 
 	joinNonce := endDevice.JoinNonce + 1
 
@@ -190,14 +227,14 @@ func joinAcceptHandler(i_endDevice models.EndDevice) {
 	logMsg := fmt.Sprintf("Publish to topic %s", topic)
 	log.Println(logMsg)
 
-    // Use hardcode setting for now
-    timeOnAir, err := airtime.CalculateLoRaAirtime(len(bytes), 11, 125, 8, airtime.CodingRate45, true, false)
-    if err != nil {
-        bestGateway.TxAvailableAt = time.Now().Add(time.Minute)
-    } else {
-        bestGateway.TxAvailableAt = time.Now().Add(timeOnAir * 90)
-    }
-    bestGateway.Save()
+	// Use hardcode setting for now
+	timeOnAir, err := airtime.CalculateLoRaAirtime(len(bytes), 11, 125, 8, airtime.CodingRate45, true, false)
+	if err != nil {
+		bestGateway.TxAvailableAt = time.Now().Add(time.Minute)
+	} else {
+		bestGateway.TxAvailableAt = time.Now().Add(timeOnAir * 90)
+	}
+	bestGateway.Save()
 
 	mic, _ := phy.MIC.MarshalText()
 	jaFrame.MacFrame.Mic = mic
@@ -207,4 +244,36 @@ func joinAcceptHandler(i_endDevice models.EndDevice) {
 
 	jaFrame.Create()
 	endDevice.Save()
+
+	gatewayActivities := models.GatewayActivity{
+		GatewayID: bestFrame.GatewayID,
+		FType:     models.JOIN_ACCEPT,
+	}
+	gatewayActivities.Save()
+
+	gwliveData := GatewayLiveData{
+		ID:    uint64(gatewayActivities.GatewayID),
+		FType: gatewayActivities.FType,
+		Time:  gatewayActivities.CreatedAt,
+	}
+	if dataChan, required := gwLiveDataChans[uint64(gatewayActivities.GatewayID)]; required {
+		dataChan <- gwliveData
+	}
+
+	endDeviceActivities := models.EndDeviceActivity{
+		EndDeviceID: endDevice.ID,
+		FType:       models.JOIN_ACCEPT,
+		Payload:     []byte{},
+	}
+	endDeviceActivities.Save()
+
+	edLiveData := EndDeviceLiveData{
+		ID:      uint64(endDeviceActivities.EndDeviceID),
+		FType:   endDeviceActivities.FType,
+		Time:    endDeviceActivities.CreatedAt,
+		Payload: endDeviceActivities.Payload,
+	}
+	if dataChan, required := edLiveDataChans[uint64(endDevice.ID)]; required {
+		dataChan <- edLiveData
+	}
 }

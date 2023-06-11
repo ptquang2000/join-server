@@ -14,8 +14,8 @@ import (
 	"github.com/ptquang2000/lorawan-server/models"
 )
 
-type ServerConfiguration struct{
-    disableDutyCycle   bool
+type ServerConfiguration struct {
+	disableDutyCycle   bool
 	mqttUsername       string
 	mqttPassword       string
 	mqttBroker         string
@@ -23,89 +23,89 @@ type ServerConfiguration struct{
 	deDuplicationDelay time.Duration
 	joinRequestTopic   string
 	uplinkTopic        string
-    receiveDelay       time.Duration
-    joinAcceptDelay    time.Duration
+	receiveDelay       time.Duration
+	joinAcceptDelay    time.Duration
 }
 
 var serverConf ServerConfiguration
 
 func init() {
-    var conf map[string]string
-    conf, err := godotenv.Read(".conf") 
-    if err != nil {
-        log.Fatal("Could not find configuration file")
-    }
+	var conf map[string]string
+	conf, err := godotenv.Read(".conf")
+	if err != nil {
+		log.Fatal("Could not find configuration file")
+	}
 
-    if disable_duty_cycle, ok := conf["disable_duty_cycle"]; ok {
-        serverConf.disableDutyCycle = disable_duty_cycle == "true"
-    } else {
-        serverConf.disableDutyCycle = false
-    }
-    if deduplicationDelay, ok := conf["deduplication_delay"]; ok {
-        var intDeduplicatinoDelay int
-        if intDeduplicatinoDelay, err =  strconv.Atoi(deduplicationDelay); err != nil {
-            log.Fatal("Conf deduplication delay is in wrong format")
-        }
-        serverConf.deDuplicationDelay = time.Microsecond * time.Duration(intDeduplicatinoDelay)
-    } else {
-        serverConf.deDuplicationDelay = time.Microsecond * 200 
-    }
-    if username, ok := conf["mqtt_username"]; ok {
-        serverConf.mqttUsername = username
-    } else {
-        log.Fatal("Require mqtt username in .conf file")
-    }
-    if password, ok := conf["mqtt_password"]; ok {
-        serverConf.mqttPassword = password
-    } else {
-        log.Fatal("Require mqtt password in .conf file")
-    }
-    if mqttBroker, ok := conf["mqtt_broker_url"]; ok {
-        serverConf.mqttBroker = mqttBroker
-    } else {
-        log.Fatal("Require mqtt broker url in .conf file")
-    }
-    if mqtt_port, ok := conf["mqtt_port"]; ok {
-        if serverConf.mqttPort, err = strconv.Atoi(mqtt_port); err != nil {
-            log.Fatal("Conf mqtt port is in wrong format")
-        }
-    } else {
-        serverConf.mqttPort = 1883
-    }
-    if joinRequestTopic, ok := conf["join_request_topic"]; ok {
-        serverConf.joinRequestTopic = joinRequestTopic
-    } else {
-        log.Fatal("Require join request topic in .conf file")
-    }
-    if uplinkTopic, ok := conf["uplink_topic"]; ok {
-        serverConf.uplinkTopic = uplinkTopic
-    } else {
-        log.Fatal("Require uplink topic in .conf file")
-    }
-    if receiveDelay, ok := conf["receive_delay_duration"]; ok {
-        var intReceiveDelay int
-        if intReceiveDelay, err = strconv.Atoi(receiveDelay); err != nil {
-            log.Fatal("Conf receive delay is in wrong format")
-        }
-        if intReceiveDelay != 1 && intReceiveDelay != 2 {
-            log.Fatal("Conf receive delay must be 1 or 2")
-        }
-        serverConf.receiveDelay = time.Second * time.Duration(intReceiveDelay)
-    } else {
-        serverConf.receiveDelay = time.Second * 2
-    }
-    if joinAcceptDelay, ok := conf["join_accept_delay_duration"]; ok {
-        var intJoinAcceptDelay int
-        if intJoinAcceptDelay, err = strconv.Atoi(joinAcceptDelay); err != nil {
-            log.Fatal("Conf join accept delay is in wrong format")
-        }
-        if intJoinAcceptDelay!= 5 && intJoinAcceptDelay != 6 {
-            log.Fatal("Conf join accept delay must be 5 or 6")
-        }
-        serverConf.joinAcceptDelay = time.Second * time.Duration(intJoinAcceptDelay)
-    } else {
-        serverConf.joinAcceptDelay = time.Second * 6
-    }
+	if disable_duty_cycle, ok := conf["disable_duty_cycle"]; ok {
+		serverConf.disableDutyCycle = disable_duty_cycle == "true"
+	} else {
+		serverConf.disableDutyCycle = false
+	}
+	if deduplicationDelay, ok := conf["deduplication_delay"]; ok {
+		var intDeduplicatinoDelay int
+		if intDeduplicatinoDelay, err = strconv.Atoi(deduplicationDelay); err != nil {
+			log.Fatal("Conf deduplication delay is in wrong format")
+		}
+		serverConf.deDuplicationDelay = time.Microsecond * time.Duration(intDeduplicatinoDelay)
+	} else {
+		serverConf.deDuplicationDelay = time.Microsecond * 200
+	}
+	if username, ok := conf["mqtt_username"]; ok {
+		serverConf.mqttUsername = username
+	} else {
+		log.Fatal("Require mqtt username in .conf file")
+	}
+	if password, ok := conf["mqtt_password"]; ok {
+		serverConf.mqttPassword = password
+	} else {
+		log.Fatal("Require mqtt password in .conf file")
+	}
+	if mqttBroker, ok := conf["mqtt_broker_url"]; ok {
+		serverConf.mqttBroker = mqttBroker
+	} else {
+		log.Fatal("Require mqtt broker url in .conf file")
+	}
+	if mqtt_port, ok := conf["mqtt_port"]; ok {
+		if serverConf.mqttPort, err = strconv.Atoi(mqtt_port); err != nil {
+			log.Fatal("Conf mqtt port is in wrong format")
+		}
+	} else {
+		serverConf.mqttPort = 1883
+	}
+	if joinRequestTopic, ok := conf["join_request_topic"]; ok {
+		serverConf.joinRequestTopic = joinRequestTopic
+	} else {
+		log.Fatal("Require join request topic in .conf file")
+	}
+	if uplinkTopic, ok := conf["uplink_topic"]; ok {
+		serverConf.uplinkTopic = uplinkTopic
+	} else {
+		log.Fatal("Require uplink topic in .conf file")
+	}
+	if receiveDelay, ok := conf["receive_delay_duration"]; ok {
+		var intReceiveDelay int
+		if intReceiveDelay, err = strconv.Atoi(receiveDelay); err != nil {
+			log.Fatal("Conf receive delay is in wrong format")
+		}
+		if intReceiveDelay != 1 && intReceiveDelay != 2 {
+			log.Fatal("Conf receive delay must be 1 or 2")
+		}
+		serverConf.receiveDelay = time.Second * time.Duration(intReceiveDelay)
+	} else {
+		serverConf.receiveDelay = time.Second * 2
+	}
+	if joinAcceptDelay, ok := conf["join_accept_delay_duration"]; ok {
+		var intJoinAcceptDelay int
+		if intJoinAcceptDelay, err = strconv.Atoi(joinAcceptDelay); err != nil {
+			log.Fatal("Conf join accept delay is in wrong format")
+		}
+		if intJoinAcceptDelay != 5 && intJoinAcceptDelay != 6 {
+			log.Fatal("Conf join accept delay must be 5 or 6")
+		}
+		serverConf.joinAcceptDelay = time.Second * time.Duration(intJoinAcceptDelay)
+	} else {
+		serverConf.joinAcceptDelay = time.Second * 6
+	}
 }
 
 func uplinkHandler(msg []byte) {
@@ -129,6 +129,25 @@ func uplinkHandler(msg []byte) {
 		logMsg := fmt.Sprintf("Error %s\n", err)
 		log.Print(logMsg)
 		return
+	}
+
+	gatewayActivities := models.GatewayActivity{
+		GatewayID: gateway.ID,
+		FType:     translateFrameType(phy.MHDR.MType),
+		Rssi:      data.Rssi,
+		Snr:       data.Snr,
+	}
+	gatewayActivities.Save()
+
+	gwliveData := GatewayLiveData{
+		ID:    uint64(gatewayActivities.GatewayID),
+		FType: gatewayActivities.FType,
+		Time:  gatewayActivities.CreatedAt,
+		Rssi:  gatewayActivities.Rssi,
+		Snr:   gatewayActivities.Snr,
+	}
+	if dataChan, required := gwLiveDataChans[uint64(gatewayActivities.GatewayID)]; required {
+		dataChan <- gwliveData
 	}
 
 	macPL, ok := phy.MACPayload.(*lorawan.MACPayload)
@@ -171,11 +190,11 @@ func uplinkHandler(msg []byte) {
 		FPort:   *macPL.FPort,
 	}
 
-    existedFrames := models.FindMacPayloadByMic(mic)
-    if len(existedFrames) > 0 {
-        macFrame.Create()
+	existedFrames := models.FindMacPayloadByMic(mic)
+	if len(existedFrames) > 0 {
+		macFrame.Create()
 		return
-    }
+	}
 	macFrame.Create()
 
 	if endDevice.FCntUp != uint16(macPL.FHDR.FCnt) {
@@ -205,10 +224,27 @@ func uplinkHandler(msg []byte) {
 		logMsg := fmt.Sprintf("Payload from %d with fport %d: %v (\"%s\")", endDevice.DevEui, *macPL.FPort, pl.Bytes, string(pl.Bytes))
 		log.Println(logMsg)
 
-        topic := fmt.Sprintf("%d/fport/%d", endDevice.DevEui, *macPL.FPort)
-        token := client.Publish(topic, 0, true, pl.Bytes)
-        token.Wait()
-        logMsg = fmt.Sprintf("Publish data to topic %s", topic)
+		endDeviceActivities := models.EndDeviceActivity{
+			EndDeviceID: endDevice.ID,
+			FType:       macFrame.FrameType,
+			Payload:     pl.Bytes,
+		}
+		endDeviceActivities.Save()
+
+		liveData := EndDeviceLiveData{
+			ID:      uint64(endDeviceActivities.EndDeviceID),
+			FType:   endDeviceActivities.FType,
+			Time:    endDeviceActivities.CreatedAt,
+			Payload: endDeviceActivities.Payload,
+		}
+		if dataChan, required := edLiveDataChans[uint64(endDevice.ID)]; required {
+			dataChan <- liveData
+		}
+
+		topic := fmt.Sprintf("%d/fport/%d", endDevice.DevEui, *macPL.FPort)
+		token := client.Publish(topic, 0, true, pl.Bytes)
+		token.Wait()
+		logMsg = fmt.Sprintf("Publish data to topic %s", topic)
 		log.Println(logMsg)
 	}
 
@@ -224,19 +260,19 @@ func downlinkHandler(endDevice models.EndDevice) {
 	devAddr := make([]byte, 4)
 	binary.BigEndian.PutUint32(devAddr, endDevice.DevAddr)
 
-    frames, _ := models.FindMacFrameByDevAddrAndFCntAndTxAvailable(endDevice.DevAddr, endDevice.FCntUp - 1, serverConf.disableDutyCycle)
-    if len(frames) == 0 {
-        log.Print("There are no gateways in off duty cycle")
-        return
-    }
+	frames, _ := models.FindMacFrameByDevAddrAndFCntAndTxAvailable(endDevice.DevAddr, endDevice.FCntUp-1, serverConf.disableDutyCycle)
+	if len(frames) == 0 {
+		log.Print("There are no gateways in off duty cycle")
+		return
+	}
 
-    bestFrame := frames[0].MacFrame
-    for _, frame := range frames[1:] {
-        if !bestFrame.IsBetterGateway(frame.MacFrame) {
-            bestFrame = frame.MacFrame
-        }
-    }
-    bestGateway := models.FindGatewayById(uint32(bestFrame.GatewayID))
+	bestFrame := frames[0].MacFrame
+	for _, frame := range frames[1:] {
+		if !bestFrame.IsBetterGateway(frame.MacFrame) {
+			bestFrame = frame.MacFrame
+		}
+	}
+	bestGateway := models.FindGatewayById(uint32(bestFrame.GatewayID))
 
 	// TODO: Just use unconfirmed for now
 	fctrl := lorawan.FCtrl{
@@ -295,14 +331,14 @@ func downlinkHandler(endDevice models.EndDevice) {
 	logMsg := fmt.Sprintf("Publish to topic %s", topic)
 	log.Println(logMsg)
 
-    // Use hardcode setting for now
-    timeOnAir, err := airtime.CalculateLoRaAirtime(len(bytes), 11, 125, 8, airtime.CodingRate45, true, false)
-    if err != nil {
-        bestGateway.TxAvailableAt = time.Now().Add(time.Minute)
-    } else {
-        bestGateway.TxAvailableAt = time.Now().Add(timeOnAir * 90)
-    }
-    bestGateway.Save()
+	// Use hardcode setting for now
+	timeOnAir, err := airtime.CalculateLoRaAirtime(len(bytes), 11, 125, 8, airtime.CodingRate45, true, false)
+	if err != nil {
+		bestGateway.TxAvailableAt = time.Now().Add(time.Minute)
+	} else {
+		bestGateway.TxAvailableAt = time.Now().Add(timeOnAir * 90)
+	}
+	bestGateway.Save()
 
 	mic, _ := phy.MIC.MarshalText()
 	unDlFrame.MacFrame.Mic = mic
@@ -310,6 +346,23 @@ func downlinkHandler(endDevice models.EndDevice) {
 
 	endDevice.FCntDown += 1
 	endDevice.Update()
+
+	endDeviceActivities := models.EndDeviceActivity{
+		EndDeviceID: endDevice.ID,
+		FType:       models.UNCONFIRMED_DATA_DOWNLINK,
+		Payload:     []byte{},
+	}
+	endDeviceActivities.Save()
+
+	liveData := EndDeviceLiveData{
+		ID:      uint64(endDeviceActivities.EndDeviceID),
+		FType:   endDeviceActivities.FType,
+		Time:    endDeviceActivities.CreatedAt,
+		Payload: endDeviceActivities.Payload,
+	}
+	if dataChan, required := edLiveDataChans[uint64(endDevice.ID)]; required {
+		dataChan <- liveData
+	}
 }
 
 func translateFrameType(mType lorawan.MType) models.FrameType {

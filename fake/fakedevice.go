@@ -214,7 +214,7 @@ func (dev *FakeEndDevice) sendConfirmedUl(gateway *FakeGateway) {
 	appSKey := dev.appSKey
 	fPort := uint8(10)
 
-	dataPL := "Hello"
+	dataPL := []byte{9}
 
 	phy := lorawan.PHYPayload{
 		MHDR: lorawan.MHDR{

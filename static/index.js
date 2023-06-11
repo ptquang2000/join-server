@@ -40,16 +40,17 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
             <p>{description}</p>
 
             <div className="d-flex justify-content-end">
-                <form className="d-flex m-0" role="search" onSubmit={onSearch}>
+                {/* <form className="d-flex m-0" role="search" onSubmit={onSearch}>
                     <input className="form-control align-self-center" type="search" placeholder="Search" aria-label="Search"/>
-                </form>
+                </form> */}
                 <button
                     ref={target}
                     type="button" 
                     className="btn btn-link p-1" 
                     onClick={() => setShow(!show)}
                 >
-                    <ThreeVerticalDots/>
+                    Options
+                    {/* <ThreeVerticalDots/> */}
                 </button>
                 <ReactBootstrap.Overlay 
                 target={target.current} 
@@ -108,18 +109,22 @@ const ContainerHeader = ({ type, options, OnInputChanged }) => {
 }
 
 const Containers = ({ path, type }) => {
-    const [page, setPage] = React.useState(true)
+    const TABLE = 0
+    const FORM = 1
+    const LIVEDATA = 2
+    const [page, setPage] = React.useState(TABLE)
     const [refreshTable, setRefreshTable] = React.useState(false)
+    const [liveDataInfo, setLiveDataInfo] = React.useState({})
 
     const [options, setOptions] = React.useState([])
     const [showOptions, setShowOptions] = React.useState({})
     React.useEffect(() => {
-        setPage(true)
+        setPage(TABLE)
     }, [path])
     
     const table = 
-        type == DataType.Gateway ? <GatewayTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
-        type == DataType.EndDevices ? <EndDeviceTable path={path} setOptions={setOptions} showOptions={showOptions}/> :
+        type == DataType.Gateway ? <GatewayTable path={path} setOptions={setOptions} showOptions={showOptions} setLiveDataInfo={setLiveDataInfo}/> :
+        type == DataType.EndDevices ? <EndDeviceTable path={path} setOptions={setOptions} showOptions={showOptions} setLiveDataInfo={setLiveDataInfo}/> :
         type == DataType.Frames ? <FrameTable path={path} setOptions={setOptions} showOptions={showOptions} refreshTable={refreshTable}/> : 
         null
 
@@ -128,10 +133,20 @@ const Containers = ({ path, type }) => {
         type == DataType.Gateway ? <GatewayForm path={path} setSuccess={setSuccessReq}/> :
         type == DataType.EndDevices ? <EndDeviceForm path={path} setSuccess={setSuccessReq}/> :
         null
+
     React.useEffect(() => {
-        if (successReq && !page)
+        setPage(LIVEDATA)
+    }, [liveDataInfo])
+    const liveDataTable =
+        JSON.stringify(liveDataInfo) === '{}' ? null :
+        type == DataType.Gateway ? <GatewayLiveTable type={type} liveDataInfo={liveDataInfo}/> :
+        type == DataType.EndDevices ? <EndDeviceLiveTable type={type} liveDataInfo={liveDataInfo}/> :
+        null
+    
+    React.useEffect(() => {
+        if (successReq && page == FORM)
         {
-            setPage(true)
+            setPage(TABLE)
             setSuccessReq(false)
         }
     }, [successReq])
@@ -139,7 +154,7 @@ const Containers = ({ path, type }) => {
     return (
         <main className="flex-fill p-3" style={{backgroundColor:"var(--bs-info-border-subtle)"}}>
             {
-                page == true
+                page == TABLE
                 ?
                 <>
                 <ContainerHeader 
@@ -172,15 +187,28 @@ const Containers = ({ path, type }) => {
                 }
                 </>
                 :
+                page == FORM
+                ?
                 <>
                 <ReactBootstrap.Button 
                 variant="link"
                 className="ps-0"
-                onClick={(_) => {setPage(!page)}}
+                onClick={(_) => {setPage(TABLE)}}
                 >
                     <ChevronLeft/>
                 </ReactBootstrap.Button>
                 {form}
+                </>
+                :
+                <>
+                <ReactBootstrap.Button 
+                variant="link"
+                className="ps-0"
+                onClick={(_) => {setPage(TABLE)}}
+                >
+                    <ChevronLeft/>
+                </ReactBootstrap.Button>
+                {liveDataTable}
                 </>
             }
         </main>
