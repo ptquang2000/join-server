@@ -127,8 +127,6 @@ func joinRequestHandler(msg []byte) {
 		dataChan <- liveData
 	}
 
-	fmt.Println(endDevice.DevEui, endDevice.DevNonce, devNonce)
-
 	if endDevice.DevNonce < devNonce {
 		endDevice.DevNonce = devNonce
 		joinAcceptChannel <- endDevice

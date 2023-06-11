@@ -37,16 +37,19 @@ const EndDeviceLiveTable = ({ type, liveDataInfo }) => {
         return (devEui & BigInt(0xFFFFFF)).toString()
     }
 
-    const liveData = data.map((res, index) => { return (
+    const liveData = data.map((res, index) => { 
+        let date = new Date(res.Time)
+        return (
         <tr>
             <th scope="row">{index + 1}</th>
-            <td>{res.Time}</td>
+            <td>{date.toLocaleDateString()} {date.toTimeString().split(' ')[0]}</td>
             <td>{GetFrameType(res.FType)}</td>
             <td>{res.Payload}</td>
             <td>{atob(res.Payload)}</td>
             <td>{base64ToHexArray(res.Payload)}</td>
         </tr>
-    )})
+        )
+    })
 
     return (
         type == DataType.EndDevices
@@ -106,15 +109,18 @@ const GatewayLiveTable = ({ type, liveDataInfo }) => {
         }
     }, [])
 
-    const liveData = data.map((res, index) => { return (
-        <tr>
-            <th scope="row">{index + 1}</th>
-            <td>{res.Time}</td>
-            <td>{GetFrameType(res.FType)}</td>
-            <td>{res.Rssi}</td>
-            <td>{res.Snr}</td>
-        </tr>
-    )})
+    const liveData = data.map((res, index) => { 
+        let date = new Date(res.Time)
+        return (
+            <tr>
+                <th scope="row">{index + 1}</th>
+                <td>{date.toLocaleDateString()} {date.toTimeString().split(' ')[0]}</td>
+                <td>{GetFrameType(res.FType)}</td>
+                <td>{res.Rssi}</td>
+                <td>{res.Snr}</td>
+            </tr>
+        )
+    })
 
     return (
         type == DataType.Gateway
