@@ -347,6 +347,21 @@ func downlinkHandler(endDevice models.EndDevice) {
 	endDevice.FCntDown += 1
 	endDevice.Update()
 
+	gatewayActivities := models.GatewayActivity{
+		GatewayID: bestFrame.GatewayID,
+		FType:     models.UNCONFIRMED_DATA_DOWNLINK,
+	}
+	gatewayActivities.Save()
+
+	gwliveData := GatewayLiveData{
+		ID:    uint64(gatewayActivities.GatewayID),
+		FType: gatewayActivities.FType,
+		Time:  gatewayActivities.CreatedAt,
+	}
+	if dataChan, required := gwLiveDataChans[uint64(gatewayActivities.GatewayID)]; required {
+		dataChan <- gwliveData
+	}
+
 	endDeviceActivities := models.EndDeviceActivity{
 		EndDeviceID: endDevice.ID,
 		FType:       models.UNCONFIRMED_DATA_DOWNLINK,
